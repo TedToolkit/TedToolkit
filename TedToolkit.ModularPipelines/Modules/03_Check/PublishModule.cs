@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using ModularPipelines.Context;
 using ModularPipelines.DotNet.Extensions;
 using ModularPipelines.DotNet.Options;
+using ModularPipelines.Git.Attributes;
 
 using TedToolkit.ModularPipelines.Attributes;
 using TedToolkit.ModularPipelines.Constants;
@@ -26,6 +27,7 @@ namespace TedToolkit.ModularPipelines.Modules;
 /// <param name="files">files</param>
 /// <param name="dotnet">dotnet</param>
 [RunOnGithubActionOnly]
+[RunIfBranch(SharedHelpers.MAIN_BRANCH)]
 public sealed class PublishModule(PipelineFiles files, IOptions<DotNetPipelineOptions> dotnet) : CheckModule<bool>
 {
     /// <inheritdoc />

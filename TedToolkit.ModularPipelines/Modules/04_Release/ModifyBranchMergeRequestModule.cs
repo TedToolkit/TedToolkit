@@ -31,6 +31,7 @@ namespace TedToolkit.ModularPipelines.Modules;
 /// <param name="chatClient">chat message</param>
 [DependsOn<CreatePullRequestModule>]
 [CanRunAi]
+[RunOnGithubActionOnly]
 public sealed class ModifyBranchMergeRequestModule(
     IGitHub githubClient,
     IGitHubEnvironmentVariables gitHubEnvironmentVariables,

@@ -89,6 +89,9 @@ public class TedPipeline(PipelineFiles files, FileInfo appSettings)
             .AddModule<CleanOutputModule>()
             .AddModule<TestModule>()
             .AddModule<UpdateEditorConfigModule>()
+            .AddModule<CreatePullRequestModule>()
+            .AddModule<ModifyBranchMergeRequestModule>()
+            .AddModule<NugetPushModule>()
             .AddModule<DotnetBuildModule>();
 
         builder = modifyBuilder?.Invoke(builder) ?? builder;

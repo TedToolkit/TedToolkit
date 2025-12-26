@@ -11,7 +11,9 @@ using Microsoft.Extensions.Options;
 
 using ModularPipelines.Context;
 using ModularPipelines.DotNet.Extensions;
+using ModularPipelines.Git.Attributes;
 
+using TedToolkit.ModularPipelines.Attributes;
 using TedToolkit.ModularPipelines.Options;
 
 namespace TedToolkit.ModularPipelines.Modules;
@@ -20,6 +22,8 @@ namespace TedToolkit.ModularPipelines.Modules;
 /// Publish the nuget packages.
 /// </summary>
 /// <param name="nugetOptions">publish options</param>
+[RunOnGithubActionOnly]
+[RunIfBranch(SharedHelpers.MAIN_BRANCH)]
 public sealed class NugetPushModule(IOptions<NuGetPipelineOptions> nugetOptions) : ReleaseModule<bool>
 {
     /// <inheritdoc />
