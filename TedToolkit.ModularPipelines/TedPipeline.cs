@@ -104,9 +104,10 @@ public class TedPipeline(PipelineFiles files, FileInfo appSettings)
         return PipelineHostBuilder.Create()
             .ConfigureAppConfiguration((_, builder) =>
             {
-                builder
-                    .AddJsonFile(appSettings.FullName)
-                    .AddEnvironmentVariables();
+                if (appSettings.Exists)
+                    builder.AddJsonFile(appSettings.FullName);
+
+                builder.AddEnvironmentVariables();
             })
             .SetLogLevel(LogLevel.Warning)
             .ConfigureServices((context, collection) =>

@@ -16,4 +16,10 @@ jobs:
           dotnet-version: '10.0'
 
       - name: Run Build Project
+        env:
+          AI__ApiKey: ${{ secrets.AI__APIKEY }}
+          AI__EndPoint: ${{ secrets.AI__ENDPOINT }}
+          AI__ModelId: ${{ secrets.AI__MODELID }}
+          NuGet__ApiKey: ${{ secrets.NUGET__APIKEY }}
+          NuGet__Url: ${{ vars.NUGET__URL }}
         run: dotnet run --project Build/Build.csproj
