@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsPackable>true</IsPackable>
+        <IsRoslynAnalyzer>true</IsRoslynAnalyzer>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Roslynator.Analyzers"/>
+      <PackageReference Include="Roslynator.CodeAnalysis.Analyzers"/>
+      <PackageReference Include="Roslynator.CodeFixes"/>
+      <PackageReference Include="Roslynator.Formatting.Analyzers"/>
+      <PackageReference Include="SonarAnalyzer.CSharp"/>
+      <PackageReference Include="StyleCop.Analyzers"/>
+    </ItemGroup>
+
+</Project>

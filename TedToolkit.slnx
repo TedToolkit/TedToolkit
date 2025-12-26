@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/Props/">
+    <File Path="props/CodeAnalysis.props" />
+    <File Path="props/NugetPackage.props" />
+  </Folder>
+  <Folder Name="/SolutionItems/">
+    <File Path=".github/workflows/build.yml" />
+    <File Path=".gitignore" />
+    <File Path="assets/stylecop.json" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="Build/Build.csproj">
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
+  <Project Path="TedToolkit.CodeAnalysis/TedToolkit.CodeAnalysis.csproj" />
+  <Project Path="TedToolkit.ModularPipelines/TedToolkit.ModularPipelines.csproj" />
+</Solution>

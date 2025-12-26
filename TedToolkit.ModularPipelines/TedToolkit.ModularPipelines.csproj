@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <Import Project="..\props\CodeAnalysis.props"/>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\.editorconfig" Visible="false"/>
+    <EmbeddedResource Include="..\PromptLibrary\CommitMessage.md" Visible="false"/>
+    <PackageReference Include="GeminiDotnet.Extensions.AI"/>
+    <PackageReference Include="Lib.Harmony"/>
+    <PackageReference Include="ModularPipelines.DotNet"/>
+    <PackageReference Include="ModularPipelines.Git"/>
+    <PackageReference Include="ModularPipelines.GitHub"/>
+    <PackageReference Include="TextCopy" />
+  </ItemGroup>
+
+</Project>
