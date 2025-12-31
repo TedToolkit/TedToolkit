@@ -64,7 +64,7 @@ public sealed class ModifyBranchMergeRequestModule(
         if (_pullRequest is null)
         {
             return SkipDecision.Skip(
-                $"Can't find MR from {gitHubEnvironmentVariables.RefName} to {TargetBranch}");
+                $"Can't find PR from {gitHubEnvironmentVariables.RefName} to {TargetBranch}");
         }
 
         return SkipDecision.DoNotSkip;
