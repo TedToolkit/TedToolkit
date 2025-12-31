@@ -41,23 +41,19 @@ public sealed class ModifyBranchMergeRequestModule(
 {
     private PullRequest? _pullRequest;
 
-    private string TargetBranch
-    {
-        get
-        {
-            return gitHubEnvironmentVariables.RefName is SharedHelpers.DEVELOPMENT_BRANCH
-                ? SharedHelpers.MAIN_BRANCH
-                : SharedHelpers.DEVELOPMENT_BRANCH;
-        }
-    }
-
     /// <inheritdoc />
     protected override async Task<SkipDecision> ShouldSkip(IPipelineContext context)
     {
+        if (gitHubEnvironmentVariables.RefName is SharedHelpers.DEVELOPMENT_BRANCH)
+        {
+            return SkipDecision.Skip(
+                "Do not modify the PR on Release.");
+        }
+
         var prs = await githubClient.Client.PullRequest.GetAllForRepository(long.Parse(
                     gitHubEnvironmentVariables.RepositoryId!,
                     CultureInfo.CurrentCulture),
-                new PullRequestRequest() { Base = TargetBranch, State = ItemStateFilter.Open, })
+                new PullRequestRequest() { Base = SharedHelpers.DEVELOPMENT_BRANCH, State = ItemStateFilter.Open, })
             .ConfigureAwait(false);
 
         _pullRequest = prs?.Count > 0 ? prs[0] : null;
@@ -65,7 +61,7 @@ public sealed class ModifyBranchMergeRequestModule(
         if (_pullRequest is null)
         {
             return SkipDecision.Skip(
-                $"Can't find PR from {gitHubEnvironmentVariables.RefName} to {TargetBranch}");
+                $"Can't find PR from {gitHubEnvironmentVariables.RefName} to {SharedHelpers.DEVELOPMENT_BRANCH}");
         }
 
         return SkipDecision.DoNotSkip;
@@ -80,7 +76,8 @@ public sealed class ModifyBranchMergeRequestModule(
             return null;
 
         await context.Git().Commands
-            .Fetch(new GitFetchOptions() { Arguments = ["origin", TargetBranch,], }, cancellationToken)
+            .Fetch(new GitFetchOptions() { Arguments = ["origin", SharedHelpers.DEVELOPMENT_BRANCH,], },
+                cancellationToken)
             .ConfigureAwait(false);
 
         await context.Git().Commands
@@ -88,35 +85,14 @@ public sealed class ModifyBranchMergeRequestModule(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        if (gitHubEnvironmentVariables.RefName is SharedHelpers.DEVELOPMENT_BRANCH)
-        {
-            var gitVersioningInformation = await context.Git().Commands.Log(
-                    new()
-                    {
-                        Arguments =
-                        [
-                            $"origin/{TargetBranch}..origin/{gitHubEnvironmentVariables.RefName}",
-                        ],
-                        Pretty = "format:\"%H|%s\"",
-                    },
-                    cancellationToken)
-                .ConfigureAwait(false);
-
-            var lines = gitVersioningInformation.StandardOutput.Split('\n').Select(l =>
-            {
-                var lines = l.Split('|');
-                return $"- {lines[1]} {lines[0]}";
-            });
-
-            return await githubClient.Client.PullRequest.Update(long.Parse(
-                    gitHubEnvironmentVariables.RepositoryId!,
-                    CultureInfo.CurrentCulture),
-                _pullRequest.Number,
-                new PullRequestUpdate() { Body = string.Join('\n', lines), }).ConfigureAwait(false);
-        }
-
         var diffMessage = await context.GitDiffAsync(
-                new() { Arguments = [$"origin/{TargetBranch}..origin/{gitHubEnvironmentVariables.RefName}",], },
+                new()
+                {
+                    Arguments =
+                    [
+                        $"origin/{SharedHelpers.DEVELOPMENT_BRANCH}..origin/{gitHubEnvironmentVariables.RefName}",
+                    ],
+                },
                 cancellationToken)
             .ConfigureAwait(false);
 
