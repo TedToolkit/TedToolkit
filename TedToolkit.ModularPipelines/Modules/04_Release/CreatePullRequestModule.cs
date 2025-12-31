@@ -41,6 +41,12 @@ public sealed class CreatePullRequestModule(IGitHub githubClient, IGitHubEnviron
     /// <inheritdoc/>
     protected override async Task<SkipDecision> ShouldSkip(IPipelineContext context)
     {
+        if (TargetBranch is SharedHelpers.MAIN_BRANCH)
+        {
+            return SkipDecision.Skip(
+                $"No need to create a PR on {SharedHelpers.MAIN_BRANCH}");
+        }
+
         var prs = await githubClient.Client.PullRequest.GetAllForRepository(long.Parse(
                     gitHubEnvironmentVariables.RepositoryId!,
                     CultureInfo.CurrentCulture),
@@ -50,7 +56,7 @@ public sealed class CreatePullRequestModule(IGitHub githubClient, IGitHubEnviron
         if (prs.Count > 0)
         {
             return SkipDecision.Skip(
-                $"There is an MR that merge from {SourceBranch} to {TargetBranch}");
+                $"There is an PR that merge from {SourceBranch} to {TargetBranch}");
         }
 
         return SkipDecision.DoNotSkip;

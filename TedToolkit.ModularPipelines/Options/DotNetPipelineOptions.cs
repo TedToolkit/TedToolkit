@@ -17,7 +17,7 @@ public sealed record DotNetPipelineOptions
     /// <summary>
     /// Gets 编译选项.
     /// </summary>
-    public required string Configuration { get; init; }
+    public required string Configuration { get; init; } = "Release";
 
     /// <summary>
     /// 是否需要Format

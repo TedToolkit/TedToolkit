@@ -12,6 +12,8 @@ using Microsoft.Extensions.Options;
 using ModularPipelines.Context;
 using ModularPipelines.DotNet.Extensions;
 using ModularPipelines.Git.Attributes;
+using ModularPipelines.Git.Extensions;
+using ModularPipelines.Models;
 
 using TedToolkit.ModularPipelines.Attributes;
 using TedToolkit.ModularPipelines.Options;
@@ -26,6 +28,18 @@ namespace TedToolkit.ModularPipelines.Modules;
 [RunIfBranch(SharedHelpers.MAIN_BRANCH)]
 public sealed class NugetPushModule(IOptions<NuGetPipelineOptions> nugetOptions) : ReleaseModule<bool>
 {
+    /// <inheritdoc />
+    protected override Task<SkipDecision> ShouldSkip(IPipelineContext context)
+    {
+        if (context.Git().Information.BranchName is not SharedHelpers.MAIN_BRANCH)
+        {
+            return SkipDecision.Skip(
+                $"No need to push nuget packages on non-{SharedHelpers.MAIN_BRANCH}");
+        }
+
+        return SkipDecision.DoNotSkip;
+    }
+
     /// <inheritdoc />
     protected override async Task<bool> ExecuteAsync(
         IPipelineContext context,

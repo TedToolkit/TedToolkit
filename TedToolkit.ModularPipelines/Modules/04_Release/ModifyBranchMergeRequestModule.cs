@@ -26,7 +26,7 @@ namespace TedToolkit.ModularPipelines.Modules;
 /// <summary>
 /// Update the PR.
 /// </summary>
-/// <param name="githubClient">github client</param>
+/// <param name="githubClient">GitHub client</param>
 /// <param name="gitHubEnvironmentVariables">environment</param>
 /// <param name="chatClient">chat message</param>
 [DependsOn<CreatePullRequestModule>]
