@@ -13,6 +13,7 @@ using Microsoft.Extensions.AI;
 using ModularPipelines.Attributes;
 using ModularPipelines.Context;
 using ModularPipelines.Git.Extensions;
+using ModularPipelines.Git.Options;
 using ModularPipelines.GitHub;
 using ModularPipelines.Models;
 using ModularPipelines.Modules;
@@ -78,14 +79,23 @@ public sealed class ModifyBranchMergeRequestModule(
         if (_pullRequest is null)
             return null;
 
-        if (TargetBranch is SharedHelpers.MAIN_BRANCH)
+        await context.Git().Commands
+            .Fetch(new GitFetchOptions() { Arguments = ["origin", TargetBranch,], }, cancellationToken)
+            .ConfigureAwait(false);
+
+        await context.Git().Commands
+            .Fetch(new GitFetchOptions() { Arguments = ["origin", gitHubEnvironmentVariables.RefName!,], },
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (gitHubEnvironmentVariables.RefName is SharedHelpers.DEVELOPMENT_BRANCH)
         {
             var gitVersioningInformation = await context.Git().Commands.Log(
                     new()
                     {
                         Arguments =
                         [
-                            $"origin/{SharedHelpers.MAIN_BRANCH}..origin/{gitHubEnvironmentVariables.RefName}",
+                            $"origin/{TargetBranch}..origin/{gitHubEnvironmentVariables.RefName}",
                         ],
                         Pretty = "format:\"%H|%s\"",
                     },
