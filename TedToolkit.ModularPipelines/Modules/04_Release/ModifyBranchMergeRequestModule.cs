@@ -56,7 +56,7 @@ public sealed class ModifyBranchMergeRequestModule(
         var prs = await githubClient.Client.PullRequest.GetAllForRepository(long.Parse(
                     gitHubEnvironmentVariables.RepositoryId!,
                     CultureInfo.CurrentCulture),
-                new PullRequestRequest() { Head = TargetBranch, State = ItemStateFilter.Open, })
+                new PullRequestRequest() { Base = TargetBranch, State = ItemStateFilter.Open, })
             .ConfigureAwait(false);
 
         _pullRequest = prs?.Count > 0 ? prs[0] : null;

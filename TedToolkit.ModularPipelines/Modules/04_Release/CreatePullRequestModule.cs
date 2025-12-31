@@ -50,7 +50,7 @@ public sealed class CreatePullRequestModule(IGitHub githubClient, IGitHubEnviron
         var prs = await githubClient.Client.PullRequest.GetAllForRepository(long.Parse(
                     gitHubEnvironmentVariables.RepositoryId!,
                     CultureInfo.CurrentCulture),
-                new PullRequestRequest() { Base = SourceBranch, Head = TargetBranch, State = ItemStateFilter.Open, })
+                new PullRequestRequest() { Head = SourceBranch, Base = TargetBranch, State = ItemStateFilter.Open, })
             .ConfigureAwait(false);
 
         if (prs.Count > 0)
@@ -71,7 +71,7 @@ public sealed class CreatePullRequestModule(IGitHub githubClient, IGitHubEnviron
         return githubClient.Client.PullRequest.Create(long.Parse(
                 gitHubEnvironmentVariables.RepositoryId!,
                 CultureInfo.CurrentCulture),
-            new NewPullRequest(Title, TargetBranch, SourceBranch) { Draft = true, });
+            new NewPullRequest(Title, SourceBranch, TargetBranch) { Draft = true, });
     }
 #pragma warning restore AsyncModule
 }
