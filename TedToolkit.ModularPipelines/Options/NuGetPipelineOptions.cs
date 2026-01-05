@@ -30,6 +30,6 @@ public sealed record NuGetPipelineOptions
     /// <summary>
     /// Gets 推送源.
     /// </summary>
-    public Uri Source
+    public string Source
         => new(Url + "v3/index.json");
 }

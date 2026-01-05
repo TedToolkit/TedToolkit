@@ -56,7 +56,7 @@ public sealed class NugetPushModule(IOptions<NuGetPipelineOptions> nugetOptions)
             await context.DotNet().Nuget.Push(
                 new(fullPath)
                 {
-                    Source = nugetOptions.Value.Source.AbsolutePath,
+                    Source = nugetOptions.Value.Source,
                     ApiKey = nugetOptions.Value.ApiKey,
                     SkipDuplicate = true,
                 },
