@@ -23,11 +23,13 @@ public sealed record NuGetPipelineOptions
     /// <summary>
     /// Gets 数据源.
     /// </summary>
-    public required Uri Url { get; init; }
+#pragma warning disable CA1056
+    public required string Url { get; init; }
+#pragma warning restore CA1056
 
     /// <summary>
     /// Gets 推送源.
     /// </summary>
     public Uri Source
-        => new(Url, "v3/index.json");
+        => new(Url + "v3/index.json");
 }

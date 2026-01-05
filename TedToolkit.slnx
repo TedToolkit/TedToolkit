@@ -11,7 +11,7 @@
     <File Path="Directory.Packages.props" />
   </Folder>
   <Project Path="Build/Build.csproj">
-    <Build Solution="Debug|*" Project="false" />
+    <Build Project="false" />
   </Project>
   <Project Path="TedToolkit.CodeAnalysis/TedToolkit.CodeAnalysis.csproj" />
   <Project Path="TedToolkit.ModularPipelines/TedToolkit.ModularPipelines.csproj" />
