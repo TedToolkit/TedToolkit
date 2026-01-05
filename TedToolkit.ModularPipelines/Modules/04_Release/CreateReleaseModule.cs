@@ -58,10 +58,12 @@ public sealed class CreateReleaseModule(
         }
 #pragma warning restore CA1305
 
+        context.GetNugetFolder().Delete();
+
         await githubClient.Client.Repository.Release.Create(repositoryId,
             new NewRelease(version)
             {
-                Name = version[1..], Body = releaseNote.ToString(), Draft = false, Prerelease = false,
+                Name = version, Body = releaseNote.ToString(), Draft = false, Prerelease = false,
             }).ConfigureAwait(false);
 
         return true;

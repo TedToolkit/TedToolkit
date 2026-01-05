@@ -63,7 +63,6 @@ public sealed class NugetPushModule(IOptions<NuGetPipelineOptions> nugetOptions)
                 cancellationToken).ConfigureAwait(false);
         })).ConfigureAwait(false);
 
-        context.GetNugetFolder().Delete();
         return true;
     }
 }
