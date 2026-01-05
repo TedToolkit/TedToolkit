@@ -30,6 +30,5 @@ public sealed record NuGetPipelineOptions
     /// <summary>
     /// Gets 推送源.
     /// </summary>
-    public string Source
-        => new(Url + "v3/index.json");
+    public required string Source { get; init; }
 }

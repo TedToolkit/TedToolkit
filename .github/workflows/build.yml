@@ -29,5 +29,6 @@ jobs:
           AI__ModelId: ${{ secrets.AI__MODELID }}
           NuGet__ApiKey: ${{ secrets.NUGET__APIKEY }}
           NuGet__Url: ${{ vars.NUGET__URL }}
+          NuGet__Source: ${{ vars.NUGET__SOURCE }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: dotnet run --project Build/Build.csproj

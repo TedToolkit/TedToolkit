@@ -92,6 +92,7 @@ public class TedPipeline(PipelineFiles files, FileInfo appSettings)
             .AddModule<CreatePullRequestModule>()
             .AddModule<ModifyBranchMergeRequestModule>()
             .AddModule<NugetPushModule>()
+            .AddModule<CreateReleaseModule>()
             .AddModule<DotnetBuildModule>();
 
         builder = modifyBuilder?.Invoke(builder) ?? builder;

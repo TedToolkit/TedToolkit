@@ -32,17 +32,17 @@ public sealed class BumpVersionModule(IGitHubEnvironmentVariables gitHubEnvironm
         if (propsFile is null)
             throw new FileNotFoundException("Directory.Build.props file not found");
 
-        var version = ChangeVersionTagAsync(propsFile, v =>
+        var version = await ChangeVersionTagAsync(propsFile, v =>
         {
             var today = DateTime.Today;
             if (v.Major == today.Year && v.Minor == today.Month && v.Build == today.Day)
                 return new(today.Year, today.Month, today.Day, Math.Max(0, v.Revision) + 1);
 
             return new(today.Year, today.Month, today.Day, 0);
-        });
+        }).ConfigureAwait(false);
 
         await context.GetVersionFile()
-            .WriteAsync(version.ToString() ?? throw new InvalidOperationException(), cancellationToken)
+            .WriteAsync(version?.ToString() ?? throw new InvalidOperationException(), cancellationToken)
             .ConfigureAwait(false);
 
         return true;
