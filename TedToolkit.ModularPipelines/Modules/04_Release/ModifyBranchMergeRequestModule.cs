@@ -16,7 +16,6 @@ using ModularPipelines.Git.Extensions;
 using ModularPipelines.Git.Options;
 using ModularPipelines.GitHub;
 using ModularPipelines.Models;
-using ModularPipelines.Modules;
 
 using Octokit;
 
@@ -27,9 +26,9 @@ namespace TedToolkit.ModularPipelines.Modules;
 /// <summary>
 /// Update the PR.
 /// </summary>
-/// <param name="githubClient">GitHub client</param>
-/// <param name="gitHubEnvironmentVariables">environment</param>
-/// <param name="chatClient">chat message</param>
+/// <param name="githubClient">GitHub client.</param>
+/// <param name="gitHubEnvironmentVariables">environment.</param>
+/// <param name="chatClient">chat message.</param>
 [DependsOn<CreatePullRequestModule>]
 [CanRunAi]
 [RunOnGithubActionOnly]

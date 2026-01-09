@@ -8,19 +8,19 @@
 namespace TedToolkit.ModularPipelines.Constants;
 
 /// <summary>
-/// 发布选项
+/// options to publish.
 /// </summary>
-/// <param name="File">文件</param>
-/// <param name="Framework">目标框架</param>
+/// <param name="File">file.</param>
+/// <param name="Framework">framework.</param>
 public readonly record struct PublishOptions(
     FileInfo File,
     string? Framework = null)
 {
     /// <summary>
-    /// 从File路径中转换过来
+    /// convert form file.
     /// </summary>
-    /// <param name="file">文件路径</param>
-    /// <returns>选项</returns>
+    /// <param name="file">file path.</param>
+    /// <returns>options.</returns>
 #pragma warning disable CA2225
     public static implicit operator PublishOptions(FileInfo file)
 #pragma warning restore CA2225

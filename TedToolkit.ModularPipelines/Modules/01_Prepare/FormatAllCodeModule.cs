@@ -21,8 +21,8 @@ namespace TedToolkit.ModularPipelines.Modules;
 /// <summary>
 /// Format the codes.
 /// </summary>
-/// <param name="files">文件</param>
-/// <param name="dotnet">设置</param>
+/// <param name="files">files.</param>
+/// <param name="dotnet">dotnet options.</param>
 [RunLocalOnly]
 public sealed class FormatAllCodeModule(PipelineFiles files, IOptions<DotNetPipelineOptions> dotnet)
     : PrepareModule<bool>, IDisposable

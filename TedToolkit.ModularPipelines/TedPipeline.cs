@@ -25,7 +25,7 @@ namespace TedToolkit.ModularPipelines;
 /// <summary>
 /// Basic pipelines.
 /// </summary>
-/// <param name="files">FileInfo</param>
+/// <param name="files">FileInfo.</param>
 /// <param name="appSettings">Settings.</param>
 public class TedPipeline(PipelineFiles files, FileInfo appSettings)
 {
@@ -74,9 +74,9 @@ public class TedPipeline(PipelineFiles files, FileInfo appSettings)
     }
 
     /// <summary>
-    /// 构造标准流程。.
+    /// execute.
     /// </summary>
-    /// <param name="modifyBuilder">需改编译器</param>
+    /// <param name="modifyBuilder">modifers.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public Task ExecuteAsync(Func<PipelineHostBuilder, PipelineHostBuilder>? modifyBuilder = null)
     {

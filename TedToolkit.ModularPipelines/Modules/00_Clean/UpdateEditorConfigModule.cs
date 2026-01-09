@@ -15,9 +15,9 @@ using TedToolkit.ModularPipelines.Options;
 namespace TedToolkit.ModularPipelines.Modules;
 
 /// <summary>
-/// 更新编辑器魔族
+/// update the editor config.
 /// </summary>
-/// <param name="dotnet">dotnet设置</param>
+/// <param name="dotnet">dotnet options.</param>
 public sealed class UpdateEditorConfigModule(IOptions<DotNetPipelineOptions> dotnet) : CleanModule<bool>
 {
     /// <inheritdoc />

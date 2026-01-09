@@ -10,7 +10,7 @@ using ModularPipelines.Modules;
 namespace TedToolkit.ModularPipelines.Modules;
 
 /// <summary>
-/// 用于清理数据的Modules.
+/// To clean module.
 /// </summary>
-/// <typeparam name="T">返回类型</typeparam>
+/// <typeparam name="T">return type.</typeparam>
 public abstract class CleanModule<T> : Module<T>;

@@ -11,8 +11,8 @@ using ModularPipelines.Modules;
 namespace TedToolkit.ModularPipelines.Modules;
 
 /// <summary>
-/// 所有的准备Module，一般来说就是准备处理一些代码的内容，因此只在Windows上能够使用。
+/// Prepare module.
 /// </summary>
-/// <typeparam name="T">返回类型</typeparam>
+/// <typeparam name="T">return type.</typeparam>
 [DependsOnAllModulesInheritingFrom(typeof(CleanModule<>))]
 public abstract class PrepareModule<T> : Module<T>;

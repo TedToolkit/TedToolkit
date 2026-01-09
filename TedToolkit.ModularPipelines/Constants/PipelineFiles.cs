@@ -8,27 +8,27 @@
 namespace TedToolkit.ModularPipelines.Constants;
 
 /// <summary>
-/// 用于处理的一些 Pipelines.
+/// Pipeline files.
 /// </summary>
 public sealed record PipelineFiles
 {
     /// <summary>
-    ///  编译用文件们.
+    ///  Gets build files.
     /// </summary>
     public required IReadOnlyCollection<FileInfo> BuildFiles { get; init; }
 
     /// <summary>
-    ///  测试用文件们.
+    ///  Gets test files.
     /// </summary>
     public required IReadOnlyCollection<FileInfo> TestFiles { get; init; }
 
     /// <summary>
-    ///  发布文件们
+    ///  Gets files to publish.
     /// </summary>
     public IReadOnlyCollection<PublishOptions> PublishFiles { get; init; } = [];
 
     /// <summary>
-    /// 解决方案
+    /// Gets the Solution.
     /// </summary>
     public required FileInfo Solution { get; init; }
 }

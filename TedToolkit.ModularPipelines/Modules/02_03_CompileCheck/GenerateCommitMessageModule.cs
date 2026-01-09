@@ -23,8 +23,8 @@ namespace TedToolkit.ModularPipelines.Modules;
 /// <summary>
 /// Generate the commit message.
 /// </summary>
-/// <param name="chatClient">聊天配置</param>
-/// <param name="options">设置</param>
+/// <param name="chatClient">chat client.</param>
+/// <param name="options">options.</param>
 [CanRunAi]
 [RunLocalOnly]
 public sealed partial class GenerateCommitMessageModule(IChatClient chatClient, IOptions<AiPipelineOptions> options)

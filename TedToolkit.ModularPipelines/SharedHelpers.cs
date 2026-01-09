@@ -19,13 +19,13 @@ namespace TedToolkit.ModularPipelines;
 public static class SharedHelpers
 {
     /// <summary>
-    /// 获得结果
+    /// Get result.
     /// </summary>
-    /// <param name="module">模组</param>
-    /// <typeparam name="TModule">模组类型</typeparam>
-    /// <typeparam name="TData">模组数据</typeparam>
-    /// <returns>返回结果</returns>
-    /// <exception cref="InvalidOperationException">非法操作</exception>
+    /// <param name="module">module.</param>
+    /// <typeparam name="TModule">module type.</typeparam>
+    /// <typeparam name="TData">the data type.</typeparam>
+    /// <returns>result.</returns>
+    /// <exception cref="InvalidOperationException">invalid operation.</exception>
     public static async Task<TData> GetResultValueAsync<TModule, TData>(this TModule? module)
         where TModule : Module<TData>
     {
@@ -41,8 +41,8 @@ public static class SharedHelpers
     /// <summary>
     /// Get the editor config file.
     /// </summary>
-    /// <param name="cancellationToken">cancel</param>
-    /// <returns>string</returns>
+    /// <param name="cancellationToken">cancel.</param>
+    /// <returns>string.</returns>
     public static Task<string> GetEditorConfigAsync(in CancellationToken cancellationToken)
     {
         return GetManifestResourceStringAsync(
@@ -72,12 +72,12 @@ public static class SharedHelpers
     }
 
     /// <summary>
-    /// 获得偏差情况
+    /// Get the diff.
     /// </summary>
-    /// <param name="context">环境</param>
-    /// <param name="diffOptions">偏差设计</param>
-    /// <param name="cancellationToken">取消</param>
-    /// <returns>结果</returns>
+    /// <param name="context">context.</param>
+    /// <param name="diffOptions">diff options.</param>
+    /// <param name="cancellationToken">cancel.</param>
+    /// <returns>result.</returns>
     public static async Task<string> GitDiffAsync(
         this IPipelineContext context,
         GitDiffOptions diffOptions,
@@ -96,34 +96,34 @@ public static class SharedHelpers
     }
 
     /// <summary>
-    /// 根目录
+    /// Root folder.
     /// </summary>
-    /// <param name="context">环境</param>
-    /// <returns>结果</returns>
+    /// <param name="context">context.</param>
+    /// <returns>result.</returns>
     public static Folder GetRootFolder(this IPipelineContext context)
         => context.Git().RootDirectory;
 
     /// <summary>
-    /// Props文件夹
+    /// Props folder.
     /// </summary>
-    /// <param name="context">环境</param>
-    /// <returns>结果</returns>
+    /// <param name="context">context.</param>
+    /// <returns>result.</returns>
     public static Folder GetPropsFolder(this IPipelineContext context)
         => context.GetRootFolder().CreateFolder(PROPS_FOLDER);
 
     /// <summary>
-    /// 输出文件夹.
+    /// output folder.
     /// </summary>
-    /// <param name="context">环境</param>
-    /// <returns>结果</returns>
+    /// <param name="context">context.</param>
+    /// <returns>result.</returns>
     public static Folder GetOutputFolder(this IPipelineContext context)
         => context.GetRootFolder().CreateFolder(OUTPUT_FOLDER);
 
     /// <summary>
-    /// 失败的文件.
+    /// failed folder.
     /// </summary>
-    /// <param name="context">环境</param>
-    /// <returns>结果</returns>
+    /// <param name="context">context.</param>
+    /// <returns>result.</returns>
     public static global::ModularPipelines.FileSystem.File GetFailedFile(
         this IPipelineContext context)
     {
@@ -131,42 +131,42 @@ public static class SharedHelpers
     }
 
     /// <summary>
-    /// 版本文件
+    /// version file.
     /// </summary>
-    /// <param name="context">环境</param>
-    /// <returns>结果</returns>
+    /// <param name="context">context.</param>
+    /// <returns>result.</returns>
     public static global::ModularPipelines.FileSystem.File GetVersionFile(this IPipelineContext context)
         => context.GetOutputFolder().GetFile("Version.txt");
 
     /// <summary>
-    /// 获得外部文件夹
+    /// externals folder.
     /// </summary>
-    /// <param name="context">环境</param>
-    /// <returns>结果</returns>
+    /// <param name="context">context.</param>
+    /// <returns>result.</returns>
     public static Folder GetExternalsFolder(this IPipelineContext context)
         => context.GetRootFolder().CreateFolder(EXTERNALS_FOLDER);
 
     /// <summary>
-    /// 运行时Nuget输出文件夹.
+    /// nuget folder.
     /// </summary>
-    /// <param name="context">环境</param>
-    /// <returns>结果</returns>
+    /// <param name="context">context.</param>
+    /// <returns>result.</returns>
     public static Folder GetNugetFolder(this IPipelineContext context)
         => context.GetOutputFolder().CreateFolder(NUGET_FOLDER);
 
     /// <summary>
-    /// 运行时Nuget输出文件夹.
+    /// test folder.
     /// </summary>
-    /// <param name="context">环境</param>
-    /// <returns>结果</returns>
+    /// <param name="context">context.</param>
+    /// <returns>result.</returns>
     public static Folder GetTestFolder(this IPipelineContext context)
         => context.GetOutputFolder().CreateFolder(TEST_FOLDER);
 
     /// <summary>
-    /// 运行时Publish输出文件夹.
+    /// publish folder.
     /// </summary>
-    /// <param name="context">环境</param>
-    /// <returns>结果</returns>
+    /// <param name="context">context.</param>
+    /// <returns>result.</returns>
     public static Folder GetPublishFolder(this IPipelineContext context)
         => context.GetOutputFolder().CreateFolder(PUBLISH_FOLDER);
 
@@ -181,7 +181,7 @@ public static class SharedHelpers
     public const string DEVELOPMENT_BRANCH = "development";
 
     /// <summary>
-    /// 关于一些Props
+    /// Props.
     /// </summary>
     private const string PROPS_FOLDER = "props";
 
@@ -191,7 +191,7 @@ public static class SharedHelpers
     private const string OUTPUT_FOLDER = "output";
 
     /// <summary>
-    /// 发布文件夹
+    /// publish folder.
     /// </summary>
     private const string PUBLISH_FOLDER = "publish";
 

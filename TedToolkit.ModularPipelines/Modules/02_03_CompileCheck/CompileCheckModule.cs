@@ -11,9 +11,9 @@ using ModularPipelines.Modules;
 namespace TedToolkit.ModularPipelines.Modules;
 
 /// <summary>
-/// 运行用的模组
+/// Compile module.
 /// </summary>
-/// <typeparam name="T">返回类型</typeparam>
+/// <typeparam name="T">return type.</typeparam>
 [DependsOnAllModulesInheritingFrom(typeof(CleanModule<>))]
 [DependsOnAllModulesInheritingFrom(typeof(PrepareModule<>))]
 public abstract class CompileCheckModule<T> : Module<T>;

@@ -23,7 +23,7 @@ namespace TedToolkit.ModularPipelines.Modules;
 /// <summary>
 /// Publish the nuget packages.
 /// </summary>
-/// <param name="nugetOptions">publish options</param>
+/// <param name="nugetOptions">publish options.</param>
 [RunOnGithubActionOnly]
 [RunIfBranch(SharedHelpers.MAIN_BRANCH)]
 public sealed class NugetPushModule(IOptions<NuGetPipelineOptions> nugetOptions) : ReleaseModule<bool>

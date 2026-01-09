@@ -20,7 +20,7 @@ namespace TedToolkit.ModularPipelines.Modules;
 /// <summary>
 /// Create a pr.
 /// </summary>
-/// <param name="githubClient">mr的client</param>
+/// <param name="githubClient">github client.</param>
 /// <param name="gitHubEnvironmentVariables">environments.</param>
 [RunOnGithubActionOnly]
 public sealed class CreatePullRequestModule(IGitHub githubClient, IGitHubEnvironmentVariables gitHubEnvironmentVariables)

@@ -15,23 +15,23 @@ namespace TedToolkit.ModularPipelines.Options;
 public sealed record AiPipelineOptions
 {
     /// <summary>
-    /// Api
+    /// Gets api.
     /// </summary>
     [SecretValue]
     public required string ApiKey { get; init; }
 
     /// <summary>
-    /// End Point
+    /// Gets end Point.
     /// </summary>
     public string EndPoint { get; init; } = "";
 
     /// <summary>
-    /// Model
+    /// Gets model.
     /// </summary>
     public string ModelId { get; init; } = "";
 
     /// <summary>
-    /// Generate Commit
+    /// Gets a value indicating whether generate Commit.
     /// </summary>
     public bool GenerateCommit { get; init; } = true;
 }

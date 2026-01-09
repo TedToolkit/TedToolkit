@@ -20,16 +20,16 @@ using TedToolkit.ModularPipelines.Options;
 namespace TedToolkit.ModularPipelines;
 
 /// <summary>
-/// 用于处理服务工具的帮助器
+/// Helpers for the service collections.
 /// </summary>
 public static class ServiceCollectionHelpers
 {
     /// <summary>
-    /// 增加AI的内容
+    /// add ai.
     /// </summary>
-    /// <param name="collection">服务集合</param>
-    /// <param name="context">环境</param>
-    /// <returns>服务集合</returns>
+    /// <param name="collection">the service collection.</param>
+    /// <param name="context">context.</param>
+    /// <returns>services.</returns>
     public static IServiceCollection AddAi(this IServiceCollection collection, HostBuilderContext context)
     {
         ArgumentNullException.ThrowIfNull(context);

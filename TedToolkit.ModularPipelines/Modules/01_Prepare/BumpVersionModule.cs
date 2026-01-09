@@ -19,8 +19,8 @@ namespace TedToolkit.ModularPipelines.Modules;
 /// <summary>
 /// Get the version based on the prop.
 /// </summary>
-/// <param name="gitHubEnvironment">发布的Client</param>
-/// <param name="github">github client</param>
+/// <param name="gitHubEnvironment">github environment.</param>
+/// <param name="github">github client.</param>
 [RunOnGithubActionOnly]
 public sealed class BumpVersionModule(IGitHubEnvironmentVariables gitHubEnvironment, IGitHub github)
     : PrepareModule<bool>

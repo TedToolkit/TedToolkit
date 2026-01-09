@@ -10,27 +10,27 @@ using System.Diagnostics.CodeAnalysis;
 namespace TedToolkit.ModularPipelines.Options;
 
 /// <summary>
-/// 编译选项.
+/// Build options.
 /// </summary>
 public sealed record DotNetPipelineOptions
 {
     /// <summary>
-    /// Gets 编译选项.
+    /// Gets configurations.
     /// </summary>
     public required string Configuration { get; init; } = "Release";
 
     /// <summary>
-    /// 是否需要Format
+    /// Gets a value indicating whether should format.
     /// </summary>
     public bool Format { get; init; }
 
     /// <summary>
-    /// 跳过更新EditorConfig
+    /// Gets a value indicating whether skip the editor config replace.
     /// </summary>
     public bool SkipUpdateEditorConfig { get; init; }
 
     /// <summary>
-    /// 使用本地导入的方式的Condition的String
+    /// Gets the condition string.
     /// </summary>
     [SuppressMessage("Minor Code Smell",
         "S2325:Methods and properties that don't access instance data should be static",

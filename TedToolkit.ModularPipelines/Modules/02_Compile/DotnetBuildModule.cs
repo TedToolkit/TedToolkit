@@ -24,8 +24,8 @@ namespace TedToolkit.ModularPipelines.Modules;
 /// <summary>
 /// Compile.
 /// </summary>
-/// <param name="options">选项</param>
-/// <param name="files">文件</param>
+/// <param name="options">dotnet options.</param>
+/// <param name="files">files.</param>
 [DependsOnAllModulesInheritingFrom(typeof(CleanModule<>))]
 [DependsOnAllModulesInheritingFrom(typeof(PrepareModule<>))]
 [DependsOnAllModulesInheritingFrom(typeof(CompileModule<>))]

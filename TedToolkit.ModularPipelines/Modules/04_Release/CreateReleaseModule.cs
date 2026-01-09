@@ -23,11 +23,11 @@ using TedToolkit.ModularPipelines.Options;
 namespace TedToolkit.ModularPipelines.Modules;
 
 /// <summary>
-/// Create the release on GitHub
+/// Create the release on GitHub.
 /// </summary>
-/// <param name="githubClient">client</param>
-/// <param name="gitHubEnvironmentVariables">variable</param>
-/// <param name="nugetOptions">nuget</param>
+/// <param name="githubClient">client.</param>
+/// <param name="gitHubEnvironmentVariables">variable.</param>
+/// <param name="nugetOptions">nuget.</param>
 [RunOnGithubActionOnly]
 [DependsOn<NugetPushModule>]
 [RunIfBranch(SharedHelpers.MAIN_BRANCH)]

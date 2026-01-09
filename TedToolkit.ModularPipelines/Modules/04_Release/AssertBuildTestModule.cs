@@ -5,16 +5,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using ModularPipelines.Attributes;
 using ModularPipelines.Context;
 using ModularPipelines.DotNet;
-
-using TedToolkit.ModularPipelines.Attributes;
 
 namespace TedToolkit.ModularPipelines.Modules;
 
 /// <summary>
-/// Check the data
+/// Check the data.
 /// </summary>
 /// <param name="parser">For parse the trx.</param>
 public sealed class AssertBuildTestModule(ITrxParser parser) : ReleaseModule<bool>
