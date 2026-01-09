@@ -3,6 +3,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Authors>TedToolkit</Authors>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>Icon.jpg</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(Configuration)' == 'Release'">
