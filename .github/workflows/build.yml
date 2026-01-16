@@ -32,3 +32,10 @@ jobs:
           NuGet__Source: ${{ vars.NUGET__SOURCE }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: dotnet run --project Build/Build.csproj
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: output/
+          retention-days: 2
