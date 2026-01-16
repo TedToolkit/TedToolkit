@@ -2,6 +2,7 @@
   <Folder Name="/Props/">
     <File Path="props/CodeAnalysis.props" />
     <File Path="props/NugetPackage.props" />
+    <File Path="props\AlmostAllFrameworks.props" />
   </Folder>
   <Folder Name="/SolutionItems/">
     <File Path=".github/workflows/build.yml" />

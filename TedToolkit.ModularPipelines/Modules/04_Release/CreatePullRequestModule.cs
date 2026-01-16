@@ -29,22 +29,19 @@ public sealed class CreatePullRequestModule(IGitHub githubClient, IGitHubEnviron
     private string SourceBranch
         => gitHubEnvironmentVariables.RefName!;
 
-    private string TargetBranch
-        => RemoveSourceBranch ? SharedHelpers.DEVELOPMENT_BRANCH : SharedHelpers.MAIN_BRANCH;
+    private static string TargetBranch
+        => SharedHelpers.MAIN_BRANCH;
 
-    private string Title
-        => RemoveSourceBranch ? SourceBranch : "🔖 Release";
-
-    private bool RemoveSourceBranch
-        => SourceBranch is not SharedHelpers.DEVELOPMENT_BRANCH;
+    private static string Title
+        => "🔖 Release";
 
     /// <inheritdoc/>
     protected override async Task<SkipDecision> ShouldSkip(IPipelineContext context)
     {
-        if (SourceBranch is SharedHelpers.MAIN_BRANCH)
+        if (SourceBranch is not SharedHelpers.DEVELOPMENT_BRANCH)
         {
             return SkipDecision.Skip(
-                $"No need to create a PR on {SharedHelpers.MAIN_BRANCH}");
+                $"No need to create a PR from {SourceBranch}");
         }
 
         var prs = await githubClient.Client.PullRequest.GetAllForRepository(long.Parse(

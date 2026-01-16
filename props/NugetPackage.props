@@ -1,18 +1,18 @@
 <Project>
-    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Authors>TedToolkit</Authors>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageIcon>Icon.jpg</PackageIcon>
-    </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>TedToolkit</Authors>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>Icon.jpg</PackageIcon>
+  </PropertyGroup>
 
-    <ItemGroup Condition="'$(Configuration)' == 'Release'">
-        <None Include="README.md"
-              Pack="true"
-              PackagePath="\"/>
-        <None Include="$(MSBuildThisFileDirectory)..\assets\Icon.jpg"
-              Pack="true"
-              Visible="false"
-              PackagePath="\"/>
-    </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <None Include="README.md"
+          Pack="true"
+          PackagePath="\"/>
+    <None Include="$(MSBuildThisFileDirectory)..\assets\Icon.jpg"
+          Pack="true"
+          Visible="false"
+          PackagePath="\"/>
+  </ItemGroup>
 </Project>
