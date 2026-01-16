@@ -53,7 +53,7 @@ public sealed class CreateReleaseModule(
 
         foreach (var listFolder in context.GetNugetFolder().ListFolders())
         {
-            var packageName = listFolder.Name[..^version.Length];
+            var packageName = listFolder.Name[..^(version.Length - 1)];
             releaseNote.AppendLine($"- [{packageName}]({nugetOptions.Value.Url}/packages/{packageName})");
         }
 #pragma warning restore CA1305
