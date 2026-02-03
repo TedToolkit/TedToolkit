@@ -7,6 +7,7 @@
 
 using Microsoft.Extensions.Options;
 
+using ModularPipelines.Configuration;
 using ModularPipelines.Context;
 using ModularPipelines.Models;
 
@@ -21,15 +22,17 @@ namespace TedToolkit.ModularPipelines.Modules;
 public sealed class UpdateEditorConfigModule(IOptions<DotNetPipelineOptions> dotnet) : CleanModule<bool>
 {
     /// <inheritdoc />
-    protected override Task<SkipDecision> ShouldSkip(IPipelineContext context)
+    protected override ModuleConfiguration Configure()
     {
-        return Task.FromResult(dotnet.Value.SkipUpdateEditorConfig
-            ? SkipDecision.Skip("Skip Update EditorConfig.")
-            : SkipDecision.DoNotSkip);
+        return ModuleConfiguration.Create()
+            .WithSkipWhen(() => dotnet.Value.SkipUpdateEditorConfig
+                ? SkipDecision.Skip("Skip Update EditorConfig.")
+                : SkipDecision.DoNotSkip)
+            .Build();
     }
 
     /// <inheritdoc />
-    protected override async Task<bool> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
+    protected override async Task<bool> ExecuteAsync(IModuleContext context, CancellationToken cancellationToken)
     {
         var editorConfigString = await SharedHelpers.GetEditorConfigAsync(cancellationToken).ConfigureAwait(false);
         var file = context.GetRootFolder().GetFile(".editorconfig");

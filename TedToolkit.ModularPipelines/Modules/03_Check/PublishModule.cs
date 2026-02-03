@@ -31,10 +31,10 @@ namespace TedToolkit.ModularPipelines.Modules;
 public sealed class PublishModule(PipelineFiles files, IOptions<DotNetPipelineOptions> dotnet) : CheckModule<bool>
 {
     /// <inheritdoc />
-    protected override async Task<bool> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
+    protected override async Task<bool> ExecuteAsync(IModuleContext context, CancellationToken cancellationToken)
     {
         var publishFolder = context.GetPublishFolder();
-        await Task.WhenAll(files.PublishFiles.Select(f => SubModule(f.File.Name,
+        await Task.WhenAll(files.PublishFiles.Select(f => context.SubModule(f.File.Name,
             async () =>
             {
                 var publishName = Path.GetFileNameWithoutExtension(f.File.Name);
@@ -42,12 +42,13 @@ public sealed class PublishModule(PipelineFiles files, IOptions<DotNetPipelineOp
 
                 await context.DotNet()
                     .Publish(
-                        new DotNetPublishOptions(f.File.FullName)
+                        new DotNetPublishOptions()
                         {
+                            ProjectSolution = f.File.FullName,
                             Configuration = dotnet.Value.Configuration,
                             Framework = f.Framework,
-                            OutputDirectory = relayFolder.Path,
-                        }, cancellationToken).ConfigureAwait(false);
+                            Output = relayFolder.Path,
+                        }, cancellationToken: cancellationToken).ConfigureAwait(false);
 
                 var zipName = $"{publishName}_{RuntimeInformation.RuntimeIdentifier}";
                 if (!string.IsNullOrEmpty(f.Framework))
@@ -57,9 +58,9 @@ public sealed class PublishModule(PipelineFiles files, IOptions<DotNetPipelineOp
 #pragma warning disable CA2007
                 await using (var stream = zipFile.GetStream())
 #pragma warning restore CA2007
-                    ZipFile.CreateFromDirectory(relayFolder.Path, stream);
+                    await ZipFile.CreateFromDirectoryAsync(relayFolder.Path, stream, cancellationToken).ConfigureAwait(false);
 
-                relayFolder.Delete();
+                await relayFolder.DeleteAsync(cancellationToken).ConfigureAwait(false);
             }))).ConfigureAwait(false);
 
         return true;

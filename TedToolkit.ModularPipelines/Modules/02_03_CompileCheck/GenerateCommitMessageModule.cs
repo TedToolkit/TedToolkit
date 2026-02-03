@@ -9,6 +9,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using ModularPipelines.Configuration;
 using ModularPipelines.Context;
 using ModularPipelines.Logging;
 using ModularPipelines.Models;
@@ -31,15 +32,18 @@ public sealed partial class GenerateCommitMessageModule(IChatClient chatClient, 
     : CompileCheckModule<string>
 {
     /// <inheritdoc />
-    protected override Task<SkipDecision> ShouldSkip(IPipelineContext context)
+    protected override ModuleConfiguration Configure()
     {
-        return Task.FromResult(options.Value.GenerateCommit
-            ? SkipDecision.DoNotSkip
-            : SkipDecision.Skip("Do not generate commit message by the options."));
+        return ModuleConfiguration.Create()
+            .WithSkipWhen(() => options.Value.GenerateCommit
+                ? SkipDecision.DoNotSkip
+                : SkipDecision.Skip("Do not generate commit message by the options."))
+            .WithTimeout(TimeSpan.FromHours(30))
+            .Build();
     }
 
     /// <inheritdoc />
-    protected override async Task<string?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
+    protected override async Task<string?> ExecuteAsync(IModuleContext context, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(context);
         var commitChanges = await context.GitDiffAsync(

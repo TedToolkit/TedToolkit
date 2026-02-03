@@ -5,8 +5,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Microsoft.Extensions.DependencyInjection;
-
 using ModularPipelines.Attributes;
 using ModularPipelines.Context;
 using ModularPipelines.GitHub;
@@ -23,6 +21,6 @@ public sealed class RunLocalOnlyAttribute : MandatoryRunConditionAttribute
     public override Task<bool> Condition(IPipelineHookContext pipelineContext)
     {
         ArgumentNullException.ThrowIfNull(pipelineContext);
-        return Task.FromResult(!pipelineContext.ServiceProvider.GetRequiredService<IGitHubEnvironmentVariables>().CI);
+        return Task.FromResult(!pipelineContext.GetService<IGitHubEnvironmentVariables>().CI);
     }
 }

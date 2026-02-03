@@ -15,14 +15,14 @@ namespace TedToolkit.ModularPipelines.Modules;
 public sealed class CleanOutputModule : CleanModule<bool>
 {
     /// <inheritdoc />
-    protected override Task<bool> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
+    protected override async Task<bool> ExecuteAsync(IModuleContext context, CancellationToken cancellationToken)
     {
         var folder = context.GetOutputFolder();
         if (folder.Exists)
-            folder.Delete();
+            await folder.DeleteAsync(cancellationToken).ConfigureAwait(false);
 
-        folder.Create();
+        await folder.CreateAsync(cancellationToken).ConfigureAwait(false);
 
-        return Task.FromResult(true);
+        return true;
     }
 }

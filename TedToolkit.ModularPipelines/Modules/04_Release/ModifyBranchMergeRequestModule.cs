@@ -11,6 +11,7 @@ using System.Text;
 using Microsoft.Extensions.AI;
 
 using ModularPipelines.Attributes;
+using ModularPipelines.Configuration;
 using ModularPipelines.Context;
 using ModularPipelines.Git.Extensions;
 using ModularPipelines.Git.Options;
@@ -38,50 +39,60 @@ public sealed class ModifyBranchMergeRequestModule(
     IChatClient chatClient)
     : ReleaseModule<PullRequest>
 {
-    private PullRequest? _pullRequest;
-
-    /// <inheritdoc />
-    protected override async Task<SkipDecision> ShouldSkip(IPipelineContext context)
+    private async Task<PullRequest?> GetPullRequestAsync()
     {
-        if (gitHubEnvironmentVariables.RefName is SharedHelpers.DEVELOPMENT_BRANCH)
-        {
-            return SkipDecision.Skip(
-                "Do not modify the PR on Release.");
-        }
-
         var prs = await githubClient.Client.PullRequest.GetAllForRepository(long.Parse(
                     gitHubEnvironmentVariables.RepositoryId!,
                     CultureInfo.CurrentCulture),
-                new PullRequestRequest() { Base = SharedHelpers.DEVELOPMENT_BRANCH, State = ItemStateFilter.Open, })
+                new PullRequestRequest()
+                {
+                    Base = SharedHelpers.DEVELOPMENT_BRANCH, State = ItemStateFilter.Open,
+                })
             .ConfigureAwait(false);
 
-        _pullRequest = prs?.Count > 0 ? prs[0] : null;
+        return prs?.Count > 0 ? prs[0] : null;
+    }
 
-        if (_pullRequest is null)
-        {
-            return SkipDecision.Skip(
-                $"Can't find PR from {gitHubEnvironmentVariables.RefName} to {SharedHelpers.DEVELOPMENT_BRANCH}");
-        }
+    /// <inheritdoc />
+    protected override ModuleConfiguration Configure()
+    {
+        return ModuleConfiguration.Create()
+            .WithSkipWhen(async () =>
+            {
+                if (gitHubEnvironmentVariables.RefName is SharedHelpers.DEVELOPMENT_BRANCH)
+                {
+                    return SkipDecision.Skip(
+                        "Do not modify the PR on Release.");
+                }
 
-        return SkipDecision.DoNotSkip;
+                if (await GetPullRequestAsync().ConfigureAwait(false) is null)
+                {
+                    return SkipDecision.Skip(
+                        $"Can't find PR from {gitHubEnvironmentVariables.RefName} to {SharedHelpers.DEVELOPMENT_BRANCH}");
+                }
+
+                return SkipDecision.DoNotSkip;
+            })
+            .Build();
     }
 
     /// <inheritdoc />
     protected override async Task<PullRequest?> ExecuteAsync(
-        IPipelineContext context,
+        IModuleContext context,
         CancellationToken cancellationToken)
     {
-        if (_pullRequest is null)
+        var pullRequest = await GetPullRequestAsync().ConfigureAwait(false);
+        if (pullRequest is null)
             return null;
 
         await context.Git().Commands
             .Fetch(new GitFetchOptions() { Arguments = ["origin", SharedHelpers.DEVELOPMENT_BRANCH,], },
-                cancellationToken)
+                token: cancellationToken)
             .ConfigureAwait(false);
 
         await context.Git().Commands
             .Fetch(new GitFetchOptions() { Arguments = ["origin", gitHubEnvironmentVariables.RefName!,], },
-                cancellationToken)
+                token: cancellationToken)
             .ConfigureAwait(false);
 
         var diffMessage = await context.GitDiffAsync(
@@ -113,9 +124,9 @@ public sealed class ModifyBranchMergeRequestModule(
         var description = new StringBuilder(string.Join('\n', resultMessages.Skip(1).SkipWhile(string.IsNullOrEmpty)));
 
         var firstCloses = true;
-        if (!string.IsNullOrEmpty(_pullRequest.Body))
+        if (!string.IsNullOrEmpty(pullRequest.Body))
         {
-            foreach (var se in _pullRequest.Body.Split('\n'))
+            foreach (var se in pullRequest.Body.Split('\n'))
             {
                 var str = se.Trim();
                 if (!str.StartsWith("Closes", StringComparison.CurrentCulture)
@@ -139,7 +150,7 @@ public sealed class ModifyBranchMergeRequestModule(
         return await githubClient.Client.PullRequest.Update(long.Parse(
                 gitHubEnvironmentVariables.RepositoryId!,
                 CultureInfo.CurrentCulture),
-            _pullRequest.Number,
+            pullRequest.Number,
             new PullRequestUpdate() { Title = title, Body = description.ToString(), }).ConfigureAwait(false);
     }
 }

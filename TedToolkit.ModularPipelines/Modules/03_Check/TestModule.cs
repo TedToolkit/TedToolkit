@@ -24,7 +24,7 @@ public sealed class TestModule(IOptions<DotNetPipelineOptions> dotnet, PipelineF
 {
     /// <inheritdoc />
     protected override async Task<FileInfo[]?> ExecuteAsync(
-        IPipelineContext context,
+        IModuleContext context,
         CancellationToken cancellationToken)
     {
         var resultFolder = context.GetTestFolder();
@@ -41,9 +41,8 @@ public sealed class TestModule(IOptions<DotNetPipelineOptions> dotnet, PipelineF
                         Project = p.FullName,
                         Arguments = ["--report-trx",],
                         Configuration = dotnet.Value.Configuration,
-                        ThrowOnNonZeroExitCode = false,
                     },
-                    cancellationToken)
+                    cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
 
                 var folder = p.Directory

@@ -37,7 +37,7 @@ public sealed class CreateReleaseModule(
     IOptions<NuGetPipelineOptions> nugetOptions) : ReleaseModule<bool>
 {
     /// <inheritdoc />
-    protected override async Task<bool> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
+    protected override async Task<bool> ExecuteAsync(IModuleContext context, CancellationToken cancellationToken)
     {
         var version = await context.GetVersionFile().ReadAsync(cancellationToken).ConfigureAwait(false);
 
@@ -58,7 +58,7 @@ public sealed class CreateReleaseModule(
         }
 #pragma warning restore CA1305
 
-        context.GetNugetFolder().Delete();
+        await context.GetNugetFolder().DeleteAsync(cancellationToken).ConfigureAwait(false);
 
         await githubClient.Client.Repository.Release.Create(repositoryId,
             new NewRelease(version)

@@ -9,6 +9,7 @@ using System.IO.Compression;
 
 using Microsoft.Extensions.Options;
 
+using ModularPipelines.Configuration;
 using ModularPipelines.Context;
 using ModularPipelines.DotNet.Extensions;
 using ModularPipelines.Git.Attributes;
@@ -29,20 +30,25 @@ namespace TedToolkit.ModularPipelines.Modules;
 public sealed class NugetPushModule(IOptions<NuGetPipelineOptions> nugetOptions) : ReleaseModule<bool>
 {
     /// <inheritdoc />
-    protected override Task<SkipDecision> ShouldSkip(IPipelineContext context)
+    protected override ModuleConfiguration Configure()
     {
-        if (context.Git().Information.BranchName is not SharedHelpers.MAIN_BRANCH)
-        {
-            return SkipDecision.Skip(
-                $"No need to push nuget packages on non-{SharedHelpers.MAIN_BRANCH}");
-        }
+        return ModuleConfiguration.Create()
+            .WithSkipWhen(context =>
+            {
+                if (context.Git().Information.BranchName is not SharedHelpers.MAIN_BRANCH)
+                {
+                    return SkipDecision.Skip(
+                        $"No need to push nuget packages on non-{SharedHelpers.MAIN_BRANCH}");
+                }
 
-        return SkipDecision.DoNotSkip;
+                return SkipDecision.DoNotSkip;
+            })
+            .Build();
     }
 
     /// <inheritdoc />
     protected override async Task<bool> ExecuteAsync(
-        IPipelineContext context,
+        IModuleContext context,
         CancellationToken cancellationToken)
     {
         await Task.WhenAll(context.GetNugetFolder().ListFolders().Select(async folder =>
@@ -51,16 +57,17 @@ public sealed class NugetPushModule(IOptions<NuGetPipelineOptions> nugetOptions)
             if (File.Exists(fullPath))
                 File.Delete(fullPath);
 
-            ZipFile.CreateFromDirectory(folder.Path, fullPath);
+            await ZipFile.CreateFromDirectoryAsync(folder.Path, fullPath, cancellationToken).ConfigureAwait(false);
 
             await context.DotNet().Nuget.Push(
-                new(fullPath)
+                new()
                 {
+                    Path = fullPath,
                     Source = nugetOptions.Value.Source,
                     ApiKey = nugetOptions.Value.ApiKey,
                     SkipDuplicate = true,
                 },
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken: cancellationToken).ConfigureAwait(false);
         })).ConfigureAwait(false);
 
         return true;

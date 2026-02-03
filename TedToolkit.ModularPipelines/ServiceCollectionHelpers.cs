@@ -12,8 +12,9 @@ using GeminiDotnet.Extensions.AI;
 
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+
+using ModularPipelines;
 
 using TedToolkit.ModularPipelines.Options;
 
@@ -30,7 +31,7 @@ public static class ServiceCollectionHelpers
     /// <param name="collection">the service collection.</param>
     /// <param name="context">context.</param>
     /// <returns>services.</returns>
-    public static IServiceCollection AddAi(this IServiceCollection collection, HostBuilderContext context)
+    public static IServiceCollection AddAi(this IServiceCollection collection, PipelineBuilder context)
     {
         ArgumentNullException.ThrowIfNull(context);
         collection.Configure<AiPipelineOptions>(context.Configuration.GetSection("AI"));
@@ -57,9 +58,6 @@ public static class ServiceCollectionHelpers
 
             return new GeminiChatClient(geminiClient);
         });
-
-        collection.ConfigureHttpClientDefaults(builder =>
-            builder.ConfigureHttpClient(client => client.Timeout = TimeSpan.FromMinutes(10)));
 
         return collection;
     }

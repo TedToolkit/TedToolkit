@@ -18,14 +18,15 @@ public sealed class AssertBuildTestModule(ITrxParser parser) : ReleaseModule<boo
 {
     /// <inheritdoc />
     protected override async Task<bool> ExecuteAsync(
-        IPipelineContext context,
+        IModuleContext context,
         CancellationToken cancellationToken)
     {
         var failedFile = context.GetFailedFile();
         if (failedFile.Exists
             && (await failedFile
                 .ReadLinesAsync(cancellationToken)
-                .ConfigureAwait(false)).Length != 0)
+                .AnyAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false)))
         {
             throw new InvalidOperationException("Failed to pass the build!");
         }

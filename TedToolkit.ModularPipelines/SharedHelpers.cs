@@ -30,12 +30,12 @@ public static class SharedHelpers
         where TModule : Module<TData>
     {
         ArgumentNullException.ThrowIfNull(module);
-        var data = await module.GetResult().ConfigureAwait(false);
-        if (!data.HasValue)
+        var data = await module;
+        if (!data.IsSuccess)
             throw new InvalidOperationException();
 
-        ArgumentNullException.ThrowIfNull(data.Value);
-        return data.Value;
+        ArgumentNullException.ThrowIfNull(data.ValueOrDefault);
+        return data.ValueOrDefault;
     }
 
     /// <summary>
@@ -86,12 +86,15 @@ public static class SharedHelpers
         ArgumentNullException.ThrowIfNull(diffOptions);
         var diffFile = context.GetOutputFolder().GetFile($"diff{Environment.TickCount}.txt");
         await context.Git().Commands.Diff(
-                diffOptions with { Output = diffFile.Path, },
-                cancellationToken)
+                diffOptions with
+                {
+                    Arguments = ["--output", diffFile.Path,],
+                },
+                token: cancellationToken)
             .ConfigureAwait(false);
 
         var result = await diffFile.ReadAsync(cancellationToken).ConfigureAwait(false);
-        diffFile.Delete();
+        await diffFile.DeleteAsync(cancellationToken).ConfigureAwait(false);
         return result;
     }
 

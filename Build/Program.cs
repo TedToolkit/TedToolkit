@@ -1,5 +1,7 @@
 // See https://aka.ms/new-console-template for more information
 
+using ModularPipelines.Extensions;
+
 using Sourcy.DotNet;
 
 using TedToolkit.ModularPipelines;
@@ -28,4 +30,5 @@ var builder = pipeline.CreateNoModules()
     .AddModule<TestModule>()
     .AddModule<NugetPushModule>()
     .AddModule<DotnetBuildModule>();
+
 await builder.ExecutePipelineAsync().ConfigureAwait(false);

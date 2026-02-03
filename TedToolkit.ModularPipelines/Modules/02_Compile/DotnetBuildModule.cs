@@ -34,7 +34,7 @@ public sealed partial class DotnetBuildModule(IOptions<DotNetPipelineOptions> op
 {
     /// <inheritdoc />
     protected override async Task<bool> ExecuteAsync(
-        IPipelineContext context,
+        IModuleContext context,
         CancellationToken cancellationToken)
     {
         var nugetFolder = context.GetNugetFolder();
@@ -42,8 +42,8 @@ public sealed partial class DotnetBuildModule(IOptions<DotNetPipelineOptions> op
                 .Select(async p =>
                 {
                     await context.DotNet().Clean(
-                            new(p.FullName) { Configuration = options.Value.Configuration, },
-                            cancellationToken)
+                            new() { ProjectSolution = p.FullName, Configuration = options.Value.Configuration, },
+                            cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
 
                     var result = await context.DotNet()
@@ -53,9 +53,8 @@ public sealed partial class DotnetBuildModule(IOptions<DotNetPipelineOptions> op
                                 ProjectSolution = p.FullName,
                                 Configuration = options.Value.Configuration,
                                 Arguments = [$"/p:PackageOutputPath={nugetFolder.Path}",],
-                                ThrowOnNonZeroExitCode = false,
                             },
-                            token: cancellationToken)
+                            cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
 
                     if (result.ExitCode is 0)
@@ -64,7 +63,7 @@ public sealed partial class DotnetBuildModule(IOptions<DotNetPipelineOptions> op
                     LogFailed(context.Logger, p.FullName);
 
                     var fileToSave = context.GetOutputFolder().GetFile(p.Name + ".txt");
-                    fileToSave.Delete();
+                    await fileToSave.DeleteAsync(cancellationToken).ConfigureAwait(false);
                     await fileToSave.WriteAsync(result.StandardOutput, cancellationToken).ConfigureAwait(false);
 
                     return Path.GetFileNameWithoutExtension(p.Name);
@@ -82,13 +81,13 @@ public sealed partial class DotnetBuildModule(IOptions<DotNetPipelineOptions> op
             await using (var stream = file.GetStream(FileAccess.Read))
 #pragma warning restore CA2007
             {
-                ZipFile.ExtractToDirectory(
+                await ZipFile.ExtractToDirectoryAsync(
                     stream,
                     nugetFolder.CreateFolder(name).Path,
-                    true);
+                    true, cancellationToken).ConfigureAwait(false);
             }
 
-            file.Delete();
+            await file.DeleteAsync(cancellationToken).ConfigureAwait(false);
         }
 
         return true;

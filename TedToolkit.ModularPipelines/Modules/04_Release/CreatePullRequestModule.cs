@@ -7,6 +7,7 @@
 
 using System.Globalization;
 
+using ModularPipelines.Configuration;
 using ModularPipelines.Context;
 using ModularPipelines.GitHub;
 using ModularPipelines.Models;
@@ -35,34 +36,39 @@ public sealed class CreatePullRequestModule(IGitHub githubClient, IGitHubEnviron
     private static string Title
         => "🔖 Release";
 
-    /// <inheritdoc/>
-    protected override async Task<SkipDecision> ShouldSkip(IPipelineContext context)
+    /// <inheritdoc />
+    protected override ModuleConfiguration Configure()
     {
-        if (SourceBranch is not SharedHelpers.DEVELOPMENT_BRANCH)
-        {
-            return SkipDecision.Skip(
-                $"No need to create a PR from {SourceBranch}");
-        }
+        return ModuleConfiguration.Create()
+            .WithSkipWhen(async () =>
+            {
+                if (SourceBranch is not SharedHelpers.DEVELOPMENT_BRANCH)
+                {
+                    return SkipDecision.Skip(
+                        $"No need to create a PR from {SourceBranch}");
+                }
 
-        var prs = await githubClient.Client.PullRequest.GetAllForRepository(long.Parse(
-                    gitHubEnvironmentVariables.RepositoryId!,
-                    CultureInfo.CurrentCulture),
-                new PullRequestRequest() { Head = SourceBranch, Base = TargetBranch, State = ItemStateFilter.Open, })
-            .ConfigureAwait(false);
+                var prs = await githubClient.Client.PullRequest.GetAllForRepository(long.Parse(
+                            gitHubEnvironmentVariables.RepositoryId!,
+                            CultureInfo.CurrentCulture),
+                        new PullRequestRequest() { Head = SourceBranch, Base = TargetBranch, State = ItemStateFilter.Open, })
+                    .ConfigureAwait(false);
 
-        if (prs.Count > 0)
-        {
-            return SkipDecision.Skip(
-                $"There is an PR that merge from {SourceBranch} to {TargetBranch}");
-        }
+                if (prs.Count > 0)
+                {
+                    return SkipDecision.Skip(
+                        $"There is an PR that merge from {SourceBranch} to {TargetBranch}");
+                }
 
-        return SkipDecision.DoNotSkip;
+                return SkipDecision.DoNotSkip;
+            })
+            .Build();
     }
 
     /// <inheritdoc />
 #pragma warning disable AsyncModule
     protected override Task<PullRequest?> ExecuteAsync(
-        IPipelineContext context,
+        IModuleContext context,
         CancellationToken cancellationToken)
     {
         return githubClient.Client.PullRequest.Create(long.Parse(

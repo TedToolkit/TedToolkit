@@ -24,7 +24,7 @@ public sealed class CanRunAiAttribute : MandatoryRunConditionAttribute
     public override Task<bool> Condition(IPipelineHookContext pipelineContext)
     {
         ArgumentNullException.ThrowIfNull(pipelineContext);
-        var options = pipelineContext.Get<IOptions<AiPipelineOptions>>();
+        var options = pipelineContext.GetService<IOptions<AiPipelineOptions>>();
         return Task.FromResult(!string.IsNullOrEmpty(options?.Value.ApiKey));
     }
 }

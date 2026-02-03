@@ -26,7 +26,7 @@ public sealed class BumpVersionModule(IGitHubEnvironmentVariables gitHubEnvironm
     : PrepareModule<bool>
 {
     /// <inheritdoc />
-    protected override async Task<bool> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
+    protected override async Task<bool> ExecuteAsync(IModuleContext context, CancellationToken cancellationToken)
     {
         var propsFile = context.Git().RootDirectory.GetFile("Directory.Build.props");
         if (propsFile is null)

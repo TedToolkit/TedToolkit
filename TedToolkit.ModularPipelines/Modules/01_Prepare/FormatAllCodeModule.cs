@@ -7,6 +7,7 @@
 
 using Microsoft.Extensions.Options;
 
+using ModularPipelines.Configuration;
 using ModularPipelines.Context;
 using ModularPipelines.DotNet.Extensions;
 using ModularPipelines.Git.Extensions;
@@ -30,21 +31,23 @@ public sealed class FormatAllCodeModule(PipelineFiles files, IOptions<DotNetPipe
     private readonly SemaphoreSlim _semaphore = new(16);
 
     /// <inheritdoc />
-    protected override TimeSpan Timeout
-        => TimeSpan.FromHours(30);
-
-    /// <inheritdoc/>
-    protected override Task<SkipDecision> ShouldSkip(IPipelineContext context)
-        => Task.FromResult(dotnet.Value.Format ? SkipDecision.DoNotSkip : SkipDecision.Skip("Do not format."));
+    protected override ModuleConfiguration Configure()
+    {
+        return ModuleConfiguration.Create()
+            .WithSkipWhen(() => dotnet.Value.Format
+                ? SkipDecision.DoNotSkip
+                : SkipDecision.Skip("Do not format."))
+            .WithTimeout(TimeSpan.FromHours(30))
+            .Build();
+    }
 
     /// <inheritdoc/>
     protected override async Task<bool> ExecuteAsync(
-        IPipelineContext context,
+        IModuleContext context,
         CancellationToken cancellationToken)
     {
         var diffResult = await context.Git().Commands.Diff(
-                new() { NameOnly = true, },
-                cancellationToken)
+                new() { NameOnly = true, }, token: cancellationToken)
             .ConfigureAwait(false);
 
         await Task.WhenAll(diffResult.StandardOutput.Split('\n')
@@ -55,11 +58,11 @@ public sealed class FormatAllCodeModule(PipelineFiles files, IOptions<DotNetPipe
 
                     try
                     {
-                        await SubModule(
+                        await context.SubModule(
                                 Path.GetFileName(includeFile),
                                 () => context.DotNet().Format(
-                                    new(files.Solution.FullName) { Include = includeFile, },
-                                    cancellationToken))
+                                    new() { ProjectSolution = files.Solution.FullName, Include = includeFile, },
+                                    cancellationToken: cancellationToken))
                             .ConfigureAwait(false);
                     }
                     finally

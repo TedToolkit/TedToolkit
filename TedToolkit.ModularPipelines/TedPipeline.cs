@@ -5,16 +5,15 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using HarmonyLib;
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using ModularPipelines;
 using ModularPipelines.DotNet.Extensions;
+using ModularPipelines.Extensions;
 using ModularPipelines.Git.Extensions;
 using ModularPipelines.GitHub.Extensions;
-using ModularPipelines.Host;
 
 using TedToolkit.ModularPipelines.Constants;
 using TedToolkit.ModularPipelines.Modules;
@@ -29,56 +28,12 @@ namespace TedToolkit.ModularPipelines;
 /// <param name="appSettings">Settings.</param>
 public class TedPipeline(PipelineFiles files, FileInfo appSettings)
 {
-    static TedPipeline()
-    {
-        var type = typeof(PipelineHostBuilder).Assembly.GetType("ModularPipelines.Extensions.TypeExtensions");
-        var targetMethod = type?.GetMethod("IsOrInheritsFrom");
-        if (targetMethod is null)
-            return;
-
-        var harmony = new Harmony("ModularPipelines.TedPipeline");
-        harmony.Patch(targetMethod, prefix: new(IsOrInheritsFromPrefix));
-
-#pragma warning disable SA1313, IDE1006
-        // ReSharper disable once InconsistentNaming
-        static bool IsOrInheritsFromPrefix(out bool __result, Type type, Type otherType)
-#pragma warning restore SA1313, IDE1006
-        {
-            if (type == otherType)
-            {
-                __result = true;
-                return false;
-            }
-
-            if (!otherType.IsGenericType)
-            {
-                __result = type.IsSubclassOf(otherType);
-                return false;
-            }
-
-            var baseType = type.BaseType;
-            while (baseType is not null)
-            {
-                if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == otherType)
-                {
-                    __result = true;
-                    return false;
-                }
-
-                baseType = baseType.BaseType;
-            }
-
-            __result = false;
-            return false;
-        }
-    }
-
     /// <summary>
     /// execute.
     /// </summary>
-    /// <param name="modifyBuilder">modifers.</param>
+    /// <param name="modifyBuilder">modifiers.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public Task ExecuteAsync(Func<PipelineHostBuilder, PipelineHostBuilder>? modifyBuilder = null)
+    public Task ExecuteAsync(Func<PipelineBuilder, PipelineBuilder>? modifyBuilder = null)
     {
         var builder = CreateNoModules()
             .AddModule<GenerateCommitMessageModule>()
@@ -103,16 +58,14 @@ public class TedPipeline(PipelineFiles files, FileInfo appSettings)
     /// 创建一个无任何Modules的.
     /// </summary>
     /// <returns>PipelineHost的Builder.</returns>
-    public PipelineHostBuilder CreateNoModules()
+    public PipelineBuilder CreateNoModules()
     {
-        return PipelineHostBuilder.Create()
-            .ConfigureAppConfiguration((_, builder) =>
-            {
-                if (appSettings.Exists)
-                    builder.AddJsonFile(appSettings.FullName);
+        var builder = Pipeline.CreateBuilder();
+        if (appSettings.Exists)
+            builder.Configuration.AddJsonFile(appSettings.FullName);
 
-                builder.AddEnvironmentVariables();
-            })
+        builder.Configuration.AddEnvironmentVariables();
+        return builder
             .SetLogLevel(LogLevel.Warning)
             .ConfigureServices((context, collection) =>
             {
@@ -121,15 +74,13 @@ public class TedPipeline(PipelineFiles files, FileInfo appSettings)
                     .Configure<NuGetPipelineOptions>(context.Configuration.GetSection("NuGet"))
                     .Configure<AiPipelineOptions>(context.Configuration.GetSection("Ai"))
                     .AddSingleton(files)
-                    .AddAi(context)
-                    .RegisterGitHubContext()
-                    .RegisterDotNetContext()
-                    .RegisterGitContext();
+                    .AddAi(context);
             })
             .ConfigurePipelineOptions((_, options) =>
             {
                 options.DefaultRetryCount = 3;
                 options.PrintLogo = false;
+                options.DefaultHttpTimeout = TimeSpan.FromMinutes(10);
             });
     }
 }
