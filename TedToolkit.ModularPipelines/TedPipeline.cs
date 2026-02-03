@@ -72,7 +72,6 @@ public class TedPipeline(PipelineFiles files, FileInfo appSettings)
                 collection
                     .Configure<DotNetPipelineOptions>(context.Configuration.GetSection("DotNet"))
                     .Configure<NuGetPipelineOptions>(context.Configuration.GetSection("NuGet"))
-                    .Configure<AiPipelineOptions>(context.Configuration.GetSection("Ai"))
                     .AddSingleton(files)
                     .AddAi(context);
             })
