@@ -30,13 +30,17 @@ public sealed class BumpVersionModule(IGitHubEnvironmentVariables gitHubEnvironm
     {
         var propsFile = context.Git().RootDirectory.GetFile("Directory.Build.props");
         if (propsFile is null)
+        {
             throw new FileNotFoundException("Directory.Build.props file not found");
+        }
 
         var version = await ChangeVersionTagAsync(propsFile, v =>
         {
             var today = DateTime.Today;
             if (v.Major == today.Year && v.Minor == today.Month && v.Build == today.Day)
+            {
                 return new(today.Year, today.Month, today.Day, Math.Max(0, v.Revision) + 1);
+            }
 
             return new(today.Year, today.Month, today.Day, 0);
         }).ConfigureAwait(false);
@@ -55,14 +59,18 @@ public sealed class BumpVersionModule(IGitHubEnvironmentVariables gitHubEnvironm
         var doc = XDocument.Load(propsFile.Path);
         var versionElement = doc.Descendants("Version").FirstOrDefault();
         if (versionElement is null)
+        {
             return null;
+        }
 
         var releases =
             await github.Client.Repository.Release.GetAll(long.Parse(gitHubEnvironment.RepositoryId!,
                 CultureInfo.CurrentCulture)).ConfigureAwait(false);
 
         if (releases.Count is 0 || !Version.TryParse(releases[0].TagName, out var version))
+        {
             version = new(1, 0);
+        }
 
         var newVersion = changer(version);
         versionElement.Value = newVersion.ToString();

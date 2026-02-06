@@ -62,7 +62,9 @@ public class TedPipeline(PipelineFiles files, FileInfo appSettings)
     {
         var builder = Pipeline.CreateBuilder();
         if (appSettings.Exists)
+        {
             builder.Configuration.AddJsonFile(appSettings.FullName);
+        }
 
         builder.Configuration.AddEnvironmentVariables();
         return builder

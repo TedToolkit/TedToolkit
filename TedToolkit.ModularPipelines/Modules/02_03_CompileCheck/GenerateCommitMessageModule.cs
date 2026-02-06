@@ -52,7 +52,9 @@ public sealed partial class GenerateCommitMessageModule(IChatClient chatClient, 
             .ConfigureAwait(false);
 
         if (string.IsNullOrEmpty(commitChanges))
+        {
             return null;
+        }
 
         var aiResult = await chatClient.GetResponseAsync(
             [

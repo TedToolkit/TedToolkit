@@ -318,7 +318,7 @@ dotnet_diagnostic.rcs0012.severity = warning
 dotnet_diagnostic.rcs0013.severity = warning
 
 # Add/remove blank line between using directives
-dotnet_diagnostic.rcs0015.severity = none
+dotnet_diagnostic.rcs0015.severity = warning
 # Options: roslynator_blank_line_between_using_directives
 
 # Put attribute list on its own line
@@ -450,13 +450,13 @@ dotnet_diagnostic.rcs0063.severity = warning
 dotnet_diagnostic.rcs1001.severity = warning
 
 # Remove braces
-dotnet_diagnostic.rcs1002.severity = warning
+dotnet_diagnostic.rcs1002.severity = none
 
 # Add braces to if-else (when expression spans over multiple lines)
 dotnet_diagnostic.rcs1003.severity = warning
 
 # Remove braces from if-else
-dotnet_diagnostic.rcs1004.severity = warning
+dotnet_diagnostic.rcs1004.severity = none
 
 # Simplify nested using statement
 dotnet_diagnostic.rcs1005.severity = warning
@@ -465,7 +465,7 @@ dotnet_diagnostic.rcs1005.severity = warning
 dotnet_diagnostic.rcs1006.severity = warning
 
 # Add braces
-dotnet_diagnostic.rcs1007.severity = none
+dotnet_diagnostic.rcs1007.severity = warning
 
 # Use predefined type
 dotnet_diagnostic.rcs1013.severity = warning
@@ -1586,6 +1586,11 @@ dotnet_diagnostic.SA1310.severity = none
 dotnet_diagnostic.SA1312.severity = none
 dotnet_diagnostic.SA1503.severity = none
 dotnet_diagnostic.SA1518.severity = none
+dotnet_diagnostic.SA1601.severity = none
+dotnet_diagnostic.SA1623.severity = none
+dotnet_diagnostic.SA1625.severity = none
+dotnet_diagnostic.SA1629.severity = none
+dotnet_diagnostic.SA1642.severity = none
 
 dotnet_diagnostic.CA1707.severity = none
 dotnet_diagnostic.CA1716.severity = none

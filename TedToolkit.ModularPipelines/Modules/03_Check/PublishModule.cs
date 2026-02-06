@@ -52,7 +52,9 @@ public sealed class PublishModule(PipelineFiles files, IOptions<DotNetPipelineOp
 
                 var zipName = $"{publishName}_{RuntimeInformation.RuntimeIdentifier}";
                 if (!string.IsNullOrEmpty(f.Framework))
+                {
                     zipName += "_" + f.Framework;
+                }
 
                 var zipFile = publishFolder.CreateFile($"{zipName}.zip");
 #pragma warning disable CA2007

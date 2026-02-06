@@ -83,7 +83,9 @@ public sealed class ModifyBranchMergeRequestModule(
     {
         var pullRequest = await GetPullRequestAsync().ConfigureAwait(false);
         if (pullRequest is null)
+        {
             return null;
+        }
 
         await context.Git().Commands
             .Fetch(new GitFetchOptions() { Arguments = ["origin", SharedHelpers.DEVELOPMENT_BRANCH,], },
@@ -107,7 +109,9 @@ public sealed class ModifyBranchMergeRequestModule(
             .ConfigureAwait(false);
 
         if (string.IsNullOrEmpty(diffMessage))
+        {
             return null;
+        }
 
         var aiResult = await chatClient.GetResponseAsync(
                 [

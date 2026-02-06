@@ -32,7 +32,9 @@ public static class SharedHelpers
         ArgumentNullException.ThrowIfNull(module);
         var data = await module;
         if (!data.IsSuccess)
+        {
             throw new InvalidOperationException();
+        }
 
         ArgumentNullException.ThrowIfNull(data.ValueOrDefault);
         return data.ValueOrDefault;

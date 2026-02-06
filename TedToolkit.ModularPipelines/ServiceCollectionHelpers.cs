@@ -41,10 +41,14 @@ public static class ServiceCollectionHelpers
             var options = provider.GetRequiredService<IOptions<AiPipelineOptions>>();
             var option = new GeminiClientOptions() { ApiKey = options.Value.ApiKey, };
             if (!string.IsNullOrEmpty(options.Value.EndPoint))
+            {
                 option.Endpoint = new(options.Value.EndPoint);
+            }
 
             if (!string.IsNullOrEmpty(options.Value.ModelId))
+            {
                 option.ModelId = options.Value.ModelId;
+            }
 
             var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
             var httpClient = httpClientFactory.CreateClient(nameof(GeminiClient));

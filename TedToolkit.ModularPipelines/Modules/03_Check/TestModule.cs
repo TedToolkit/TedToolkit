@@ -33,7 +33,9 @@ public sealed class TestModule(IOptions<DotNetPipelineOptions> dotnet, PipelineF
             .Select(async p =>
             {
                 if (p.Directory is null)
+                {
                     return null;
+                }
 
                 await context.DotNet().Run(
                     new()
@@ -52,7 +54,9 @@ public sealed class TestModule(IOptions<DotNetPipelineOptions> dotnet, PipelineF
                 var file = folder.GetFiles("*.trx", SearchOption.AllDirectories)
                     .MaxBy(file => file.CreationTime);
                 if (file is null)
+                {
                     return null;
+                }
 
                 var projectName = Path.GetFileNameWithoutExtension(p.Name);
                 var path = Path.Combine(resultFolder.Path, projectName + "_" + file.Name);

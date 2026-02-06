@@ -19,7 +19,9 @@ public sealed class CleanOutputModule : CleanModule<bool>
     {
         var folder = context.GetOutputFolder();
         if (folder.Exists)
+        {
             await folder.DeleteAsync(cancellationToken).ConfigureAwait(false);
+        }
 
         await folder.CreateAsync(cancellationToken).ConfigureAwait(false);
 

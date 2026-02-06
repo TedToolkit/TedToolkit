@@ -55,7 +55,9 @@ public sealed class NugetPushModule(IOptions<NuGetPipelineOptions> nugetOptions)
         {
             var fullPath = folder.Path + ".nupkg";
             if (File.Exists(fullPath))
+            {
                 File.Delete(fullPath);
+            }
 
             await ZipFile.CreateFromDirectoryAsync(folder.Path, fullPath, cancellationToken).ConfigureAwait(false);
 

@@ -58,7 +58,9 @@ public sealed partial class DotnetBuildModule(IOptions<DotNetPipelineOptions> op
                         .ConfigureAwait(false);
 
                     if (result.ExitCode is 0)
+                    {
                         return "";
+                    }
 
                     LogFailed(context.Logger, p.FullName);
 

@@ -37,7 +37,9 @@ public sealed class AssertBuildTestModule(ITrxParser parser) : ReleaseModule<boo
             var executed = result.ResultSummary.Counters.Executed;
             var passed = result.ResultSummary.Counters.Passed;
             if (executed == passed)
+            {
                 continue;
+            }
 
             throw new InvalidOperationException("Failed to pass the test!");
         }
