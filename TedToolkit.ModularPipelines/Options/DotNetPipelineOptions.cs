@@ -37,7 +37,11 @@ public sealed record DotNetPipelineOptions
         Justification = "当前这个属性不应为静态")]
     public string LoadLocalConditionString
     {
-        get => string.IsNullOrEmpty(field) ? "LoadLocal" : field;
+        get
+        {
+            return string.IsNullOrEmpty(field) ? "LoadLocal" : field;
+        }
+
         init;
     }
 }

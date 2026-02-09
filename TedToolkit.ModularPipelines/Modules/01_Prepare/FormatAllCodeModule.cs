@@ -77,5 +77,7 @@ public sealed class FormatAllCodeModule(PipelineFiles files, IOptions<DotNetPipe
 
     /// <inheritdoc />
     public void Dispose()
-        => _semaphore.Dispose();
+    {
+        _semaphore.Dispose();
+    }
 }

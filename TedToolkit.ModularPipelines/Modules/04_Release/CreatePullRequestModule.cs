@@ -28,13 +28,28 @@ public sealed class CreatePullRequestModule(IGitHub githubClient, IGitHubEnviron
     : ReleaseModule<PullRequest>
 {
     private string SourceBranch
-        => gitHubEnvironmentVariables.RefName!;
+    {
+        get
+        {
+            return gitHubEnvironmentVariables.RefName!;
+        }
+    }
 
     private static string TargetBranch
-        => SharedHelpers.MAIN_BRANCH;
+    {
+        get
+        {
+            return SharedHelpers.MAIN_BRANCH;
+        }
+    }
 
     private static string Title
-        => "🔖 Release";
+    {
+        get
+        {
+            return "🔖 Release";
+        }
+    }
 
     /// <inheritdoc />
     protected override ModuleConfiguration Configure()

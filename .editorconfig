@@ -195,7 +195,7 @@ roslynator_block_braces_style = multi_line
 # Default: multi_line
 # Applicable to: rcs0021
 
-roslynator_body_style = expression
+roslynator_body_style = block
 # Applicable to: rcs1016
 
 roslynator_conditional_operator_condition_parentheses_style = omit

@@ -5,6 +5,7 @@
     <File Path="props\AlmostAllFrameworks.props" />
   </Folder>
   <Folder Name="/SolutionItems/">
+    <File Path=".editorconfig" />
     <File Path=".github/workflows/build.yml" />
     <File Path=".gitignore" />
     <File Path="assets/stylecop.json" />

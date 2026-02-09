@@ -103,7 +103,9 @@ public static class SharedHelpers
     /// <param name="context">context.</param>
     /// <returns>result.</returns>
     public static Folder GetRootFolder(this IPipelineContext context)
-        => context.Git().RootDirectory;
+    {
+        return context.Git().RootDirectory;
+    }
 
     /// <summary>
     /// Props folder.
@@ -111,7 +113,9 @@ public static class SharedHelpers
     /// <param name="context">context.</param>
     /// <returns>result.</returns>
     public static Folder GetPropsFolder(this IPipelineContext context)
-        => context.GetRootFolder().CreateFolder(PROPS_FOLDER);
+    {
+        return context.GetRootFolder().CreateFolder(PROPS_FOLDER);
+    }
 
     /// <summary>
     /// output folder.
@@ -119,7 +123,9 @@ public static class SharedHelpers
     /// <param name="context">context.</param>
     /// <returns>result.</returns>
     public static Folder GetOutputFolder(this IPipelineContext context)
-        => context.GetRootFolder().CreateFolder(OUTPUT_FOLDER);
+    {
+        return context.GetRootFolder().CreateFolder(OUTPUT_FOLDER);
+    }
 
     /// <summary>
     /// failed folder.
@@ -138,7 +144,9 @@ public static class SharedHelpers
     /// <param name="context">context.</param>
     /// <returns>result.</returns>
     public static global::ModularPipelines.FileSystem.File GetVersionFile(this IPipelineContext context)
-        => context.GetOutputFolder().GetFile("Version.txt");
+    {
+        return context.GetOutputFolder().GetFile("Version.txt");
+    }
 
     /// <summary>
     /// externals folder.
@@ -146,7 +154,9 @@ public static class SharedHelpers
     /// <param name="context">context.</param>
     /// <returns>result.</returns>
     public static Folder GetExternalsFolder(this IPipelineContext context)
-        => context.GetRootFolder().CreateFolder(EXTERNALS_FOLDER);
+    {
+        return context.GetRootFolder().CreateFolder(EXTERNALS_FOLDER);
+    }
 
     /// <summary>
     /// nuget folder.
@@ -154,7 +164,9 @@ public static class SharedHelpers
     /// <param name="context">context.</param>
     /// <returns>result.</returns>
     public static Folder GetNugetFolder(this IPipelineContext context)
-        => context.GetOutputFolder().CreateFolder(NUGET_FOLDER);
+    {
+        return context.GetOutputFolder().CreateFolder(NUGET_FOLDER);
+    }
 
     /// <summary>
     /// test folder.
@@ -162,7 +174,9 @@ public static class SharedHelpers
     /// <param name="context">context.</param>
     /// <returns>result.</returns>
     public static Folder GetTestFolder(this IPipelineContext context)
-        => context.GetOutputFolder().CreateFolder(TEST_FOLDER);
+    {
+        return context.GetOutputFolder().CreateFolder(TEST_FOLDER);
+    }
 
     /// <summary>
     /// publish folder.
@@ -170,7 +184,9 @@ public static class SharedHelpers
     /// <param name="context">context.</param>
     /// <returns>result.</returns>
     public static Folder GetPublishFolder(this IPipelineContext context)
-        => context.GetOutputFolder().CreateFolder(PUBLISH_FOLDER);
+    {
+        return context.GetOutputFolder().CreateFolder(PUBLISH_FOLDER);
+    }
 
     /// <summary>
     ///     Branches.
