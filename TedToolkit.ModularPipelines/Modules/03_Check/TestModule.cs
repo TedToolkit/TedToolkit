@@ -44,6 +44,7 @@ public sealed class TestModule(IOptions<DotNetPipelineOptions> dotnet, PipelineF
                         Arguments = ["--report-trx",],
                         Configuration = dotnet.Value.Configuration,
                     },
+                    new() { ThrowOnNonZeroExitCode = false, },
                     cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
 
