@@ -104,3 +104,7 @@ All libraries target a wide range of frameworks:
 ## License
 
 All TedToolkit libraries are licensed under the [GNU Lesser General Public License v3.0 (LGPL-3.0)](COPYING.LESSER). You are free to use them in proprietary applications as long as the libraries themselves remain under the same license.
+
+## Contact
+
+[Discord](https://discord.gg/CVuD7K9T5M) | [QQ](https://qm.qq.com/q/ULXKP1cmeO)
