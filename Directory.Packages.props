@@ -6,12 +6,12 @@
     <PackageVersion Include="GeminiDotnet.Extensions.AI" Version="0.23.0" />
     <PackageVersion Include="ModularPipelines.DotNet" Version="3.1.90" />
     <PackageVersion Include="ModularPipelines.Git" Version="3.1.90" />
-    <PackageVersion Include="ModularPipelines.GitHub" Version="3.1.6" />
+    <PackageVersion Include="ModularPipelines.GitHub" Version="3.1.90" />
     <PackageVersion Include="Roslynator.Analyzers" Version="4.15.0" />
     <PackageVersion Include="Roslynator.CodeAnalysis.Analyzers" Version="4.15.0" />
     <PackageVersion Include="Roslynator.CodeFixes" Version="4.15.0" />
     <PackageVersion Include="Roslynator.Formatting.Analyzers" Version="4.15.0" />
-    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.22.0.136894" />
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.23.0.137933" />
     <PackageVersion Include="Sourcy.DotNet" Version="1.1.1" />
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
     <PackageVersion Include="TextCopy" Version="6.2.1" />
