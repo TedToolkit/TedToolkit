@@ -10,25 +10,25 @@ using ModularPipelines.Attributes;
 namespace TedToolkit.ModularPipelines.Options;
 
 /// <summary>
-/// Nuget的一些设置。.
+/// NuGet settings.
 /// </summary>
 public sealed record NuGetPipelineOptions
 {
     /// <summary>
-    /// Gets 你的Key信息。.
+    /// Gets the API key.
     /// </summary>
     [SecretValue]
     public required string ApiKey { get; init; }
 
     /// <summary>
-    /// Gets 数据源.
+    /// Gets the package URL.
     /// </summary>
 #pragma warning disable CA1056
     public required string Url { get; init; }
 #pragma warning restore CA1056
 
     /// <summary>
-    /// Gets 推送源.
+    /// Gets the package source.
     /// </summary>
     public required string Source { get; init; }
 }

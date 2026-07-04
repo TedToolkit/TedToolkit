@@ -34,7 +34,7 @@ public sealed record DotNetPipelineOptions
     /// </summary>
     [SuppressMessage("Minor Code Smell",
         "S2325:Methods and properties that don't access instance data should be static",
-        Justification = "当前这个属性不应为静态")]
+        Justification = "This property should not be static.")]
     public string LoadLocalConditionString
     {
         get

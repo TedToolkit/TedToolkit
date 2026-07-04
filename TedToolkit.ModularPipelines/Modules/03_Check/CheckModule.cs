@@ -11,9 +11,9 @@ using ModularPipelines.Modules;
 namespace TedToolkit.ModularPipelines.Modules;
 
 /// <summary>
-/// 检查数据的Module.
+/// Base module for validation steps.
 /// </summary>
-/// <typeparam name="T">返回数据类型.</typeparam>
+/// <typeparam name="T">The return type.</typeparam>
 [DependsOn<DotnetBuildModule>]
 [DependsOnAllModulesInheritingFrom(typeof(CleanModule<>))]
 [DependsOnAllModulesInheritingFrom(typeof(PrepareModule<>))]

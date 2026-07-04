@@ -55,9 +55,9 @@ public class TedPipeline(PipelineFiles files, FileInfo appSettings)
     }
 
     /// <summary>
-    /// 创建一个无任何Modules的.
+    /// Creates a builder without any modules.
     /// </summary>
-    /// <returns>PipelineHost的Builder.</returns>
+    /// <returns>The pipeline builder.</returns>
     public PipelineBuilder CreateNoModules()
     {
         var builder = Pipeline.CreateBuilder();

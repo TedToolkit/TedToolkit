@@ -10,7 +10,7 @@ using ModularPipelines.Context;
 namespace TedToolkit.ModularPipelines.Modules;
 
 /// <summary>
-/// 清理输出文件夹，这很重要。.
+/// Cleans the output folder before the pipeline runs.
 /// </summary>
 public sealed class CleanOutputModule : CleanModule<bool>
 {

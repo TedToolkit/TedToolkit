@@ -16,10 +16,10 @@ using TedToolkit.ModularPipelines.Options;
 namespace TedToolkit.ModularPipelines.Modules;
 
 /// <summary>
-/// 进行测试的流水线，其中需要注意的是，实际上跑的是dotnet run而非dotnet test.
+/// Test pipeline module that runs tests through dotnet run instead of dotnet test.
 /// </summary>
-/// <param name="dotnet">dotnet设置.</param>
-/// <param name="files">文件设置.</param>
+/// <param name="dotnet">The .NET options.</param>
+/// <param name="files">The pipeline files.</param>
 public sealed class TestModule(IOptions<DotNetPipelineOptions> dotnet, PipelineFiles files) : CheckModule<FileInfo[]>
 {
     /// <inheritdoc />
