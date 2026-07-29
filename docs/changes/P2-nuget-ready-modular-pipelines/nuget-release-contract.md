@@ -1,6 +1,6 @@
 # NuGet Release Contract
 
-> Status: Draft. After approval, this document forms the implementation contract together with the change README, ADR-001, and the architecture record.
+> Status: Approved. Approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`. This document forms the implementation contract together with the change README, ADR-001, and the architecture record.
 
 ## Package Set and Compatibility
 

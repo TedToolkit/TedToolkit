@@ -1,6 +1,6 @@
 # Test Strategy and Traceability
 
-> Status: Draft. Every test project uses TUnit as an executable project (`OutputType=Exe`). Tests run through `dotnet run --configuration Release`; each test method has an English XML `summary`, and every assertion is awaited.
+> Status: Approved. Approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`. Every test project uses TUnit as an executable project (`OutputType=Exe`). Tests run through `dotnet run --configuration Release`; each test method has an English XML `summary`, and every assertion is awaited.
 
 ## Test Projects and Responsibilities
 

@@ -2,7 +2,7 @@
 
 ## 📌 Status
 
-Draft
+Approved
 
 ## 🚦 Delivery Priority
 
@@ -13,6 +13,7 @@ Draft
 ## 🔗 Delivery Context
 
 - Parent change: [P2-nuget-ready-modular-pipelines](../README.md)
+- Approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`
 - Prerequisites: P2-NUPIPE-001–005, ADR-001, and the architecture record.
 - Applicable principles: None.
 

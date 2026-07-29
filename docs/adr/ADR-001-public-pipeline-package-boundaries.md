@@ -1,7 +1,8 @@
 # ADR-001: Public Pipeline Packages Use Build, Combine, and Neutral Adapter Boundaries
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-07-29
+- Approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`
 - Decision owner: User
 - Decision scope: Long-term public APIs and dependency direction for the NuGet-ready `TedToolkit.CodeAnalysis` and `TedToolkit.ModularPipelines*` packages.
 - Governing principles: None; the repository does not currently contain approved principle documents.

@@ -1,6 +1,6 @@
 # P2 Implementation Blueprint: NuGet Packages, Directories, APIs, and Tests
 
-> Status: Draft. This document constrains implementation of the [P2 change](README.md). If it conflicts with the [architecture record](../../architecture/modular-pipelines-packaging.md) or ADR-001, the approved ADR takes precedence.
+> Status: Approved. Approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`. This document constrains implementation of the [P2 change](README.md). If it conflicts with the [architecture record](../../architecture/modular-pipelines-packaging.md) or ADR-001, the approved ADR takes precedence.
 
 ## 1. Final Solution Structure
 

@@ -2,10 +2,11 @@
 
 ## 📌 Status
 
-Draft — the 12-document design set is uncommitted and unapproved, so it cannot yet govern production implementation.
+Approved — the 12-document design set at `0e01cced32f4d8e0946e54609880c617199a5b4c` governs production implementation.
 
 - Change owner: User
 - Approval owner: User
+- Approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`
 
 ## 🚦 Change Priority
 
@@ -85,7 +86,7 @@ The implementation directories, project references, public/internal types, resou
 
 | ID | Blocker | Affected scope | Next action | Status |
 | --- | --- | --- | --- | --- |
-| PB-01 | The 12 design documents do not yet share one committed approval baseline | All implementation work packages | Commit them together, have explicit User approval cite that SHA, then use a status-only follow-up commit to record the approved design revision | Open |
+| PB-01 | The 12 design documents share the User-approved baseline `0e01cced32f4d8e0946e54609880c617199a5b4c` | All implementation work packages | Resolved by the explicit User approval and this status-only follow-up commit | Resolved |
 | PB-02 | The current checkout's Build configuration contains a non-empty credential-like AI value; its value has not been copied into these documents | P2-NUPIPE-003 host migration, P2-NUPIPE-006 CI evidence, and release readiness | User rotates it; the migrated workflow removes AI secrets, and examples, fixtures, packages, and logs permit only empty values or environment placeholders | Open |
 | PB-03 | GitHub Actions test-repository and GitLab test-project/runner access is not yet recorded | P2-NUPIPE-006 BC-006-8 and release readiness only | User provides both environments before real CI evidence is collected; local or mocked tests do not replace this gate | Open |
 | PB-04 | The current CodeAnalysis graph explicitly references `Roslynator.CodeFixes`, and several selected analyzer packages also carry their own code-fix DLLs in Roslyn-versioned asset subtrees | P2-NUPIPE-001 scope and IDE compatibility approval | Resolved by User decision: preserve the complete current code-fix provider set and its audited host-compatible variants, retaining distinct upstream Roslyn-versioned paths; any asset or variant that fails license, dependency-closure, selection, or isolated-host loading blocks 001 and requires revised User approval rather than flattening or silent removal | Resolved |
