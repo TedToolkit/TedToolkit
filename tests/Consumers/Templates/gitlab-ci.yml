@@ -24,4 +24,5 @@ combine:
   variables:
     CONSUME_ARTIFACTS: "true"
   script:
+    - dotnet restore tests/Consumers/GitLab/GitLab.csproj --configfile tests/Consumers/NuGet.config -p:CandidateVersion=$CANDIDATE_VERSION
     - dotnet run --project tests/Consumers/GitLab/GitLab.csproj -c Release --no-restore -p:CandidateVersion=$CANDIDATE_VERSION

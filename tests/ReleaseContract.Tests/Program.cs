@@ -145,12 +145,19 @@ static void ValidateTemplatesAndWorkflow(DirectoryInfo root)
         && github.Contains(
             "tests/Consumers/GitHub/GitHub.csproj",
             StringComparison.Ordinal)
+        && github.Contains(
+            "dotnet run --project tests/Consumers/GitHub/GitHub.csproj",
+            StringComparison.Ordinal)
         && !github.Contains("secrets.", StringComparison.Ordinal)
         && gitlab.Contains("GIT_DEPTH: \"0\"", StringComparison.Ordinal)
         && gitlab.Contains("artifacts: true", StringComparison.Ordinal)
         && gitlab.Contains(
             "CONSUME_ARTIFACTS: \"true\"",
             StringComparison.Ordinal)
+        && gitlab.LastIndexOf(
+            "dotnet restore tests/Consumers/GitLab/GitLab.csproj",
+            StringComparison.Ordinal)
+        > gitlab.IndexOf("combine:", StringComparison.Ordinal)
         && !gitlab.Contains("TOKEN", StringComparison.OrdinalIgnoreCase)
         && !gitlab.Contains("https://", StringComparison.OrdinalIgnoreCase),
         "A side-effect-free CI template is invalid.");
@@ -167,6 +174,12 @@ static void ValidateTemplatesAndWorkflow(DirectoryInfo root)
             "cancel-in-progress: false",
             StringComparison.Ordinal)
         && workflow.Contains("fetch-depth: 0", StringComparison.Ordinal)
+        && workflow.Contains(
+            "consumer-package-dry-run:",
+            StringComparison.Ordinal)
+        && workflow.Contains(
+            "Restore package-only consumers",
+            StringComparison.Ordinal)
         && !workflow.Contains(
             "pull-requests: write",
             StringComparison.Ordinal)

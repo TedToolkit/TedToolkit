@@ -71,6 +71,76 @@ jobs:
           retention-days: 2
           if-no-files-found: ignore
 
+  consumer-package-dry-run:
+    if: >-
+      (github.event_name != 'workflow_dispatch' ||
+       inputs.recovery_action == 'Build') &&
+      github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout complete read-only history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup pinned .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Resolve coordinated candidate version
+        id: candidate-version
+        run: dotnet run --project Build/Build.csproj -c Release -- resolve-version
+
+      - name: Produce candidate packages without remote actions
+        env:
+          TEDTOOLKIT_PIPELINE_PROFILE: Pack
+          TEDTOOLKIT_PACKAGE_VERSION: ${{ steps.candidate-version.outputs.version }}
+          TEDTOOLKIT_RUN_FORMAT: 'false'
+        run: dotnet run --project Build/Build.csproj -c Release
+
+      - name: Prepare isolated candidate source
+        run: |
+          mkdir -p artifacts/candidate-packages
+          cp output/nuget/* artifacts/candidate-packages/
+
+      - name: Restore package-only consumers
+        env:
+          CANDIDATE_VERSION: ${{ steps.candidate-version.outputs.version }}
+        run: |
+          dotnet restore tests/Consumers/BuildOnly/BuildOnly.csproj --configfile tests/Consumers/NuGet.config -p:CandidateVersion="$CANDIDATE_VERSION"
+          dotnet restore tests/Consumers/GitHub/GitHub.csproj --configfile tests/Consumers/NuGet.config -p:CandidateVersion="$CANDIDATE_VERSION"
+          dotnet restore tests/Consumers/GitLab/GitLab.csproj --configfile tests/Consumers/NuGet.config -p:CandidateVersion="$CANDIDATE_VERSION"
+
+      - name: Strict-build package-only consumers
+        env:
+          CANDIDATE_VERSION: ${{ steps.candidate-version.outputs.version }}
+        run: |
+          dotnet build tests/Consumers/BuildOnly/BuildOnly.csproj -c Release --no-restore -warnaserror -p:CandidateVersion="$CANDIDATE_VERSION"
+          dotnet build tests/Consumers/GitHub/GitHub.csproj -c Release --no-restore -warnaserror -p:CandidateVersion="$CANDIDATE_VERSION"
+          dotnet build tests/Consumers/GitLab/GitLab.csproj -c Release --no-restore -warnaserror -p:CandidateVersion="$CANDIDATE_VERSION"
+
+      - name: Run side-effect-free package-only consumers
+        env:
+          CANDIDATE_VERSION: ${{ steps.candidate-version.outputs.version }}
+        run: |
+          dotnet run --project tests/Consumers/BuildOnly/BuildOnly.csproj -c Release --no-build -p:CandidateVersion="$CANDIDATE_VERSION"
+          dotnet run --project tests/Consumers/GitHub/GitHub.csproj -c Release --no-build -p:CandidateVersion="$CANDIDATE_VERSION"
+          dotnet run --project tests/Consumers/GitLab/GitLab.csproj -c Release --no-build -p:CandidateVersion="$CANDIDATE_VERSION"
+
+      - name: Consume GitLab artifact manifest in a second process
+        env:
+          CANDIDATE_VERSION: ${{ steps.candidate-version.outputs.version }}
+          CONSUME_ARTIFACTS: 'true'
+        run: >-
+          dotnet run
+          --project tests/Consumers/GitLab/GitLab.csproj
+          -c Release --no-build
+          -p:CandidateVersion="$CANDIDATE_VERSION"
+
   build-pack:
     if: >-
       (github.event_name != 'workflow_dispatch' ||

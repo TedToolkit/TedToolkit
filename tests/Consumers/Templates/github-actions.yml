@@ -27,3 +27,8 @@ jobs:
           dotnet build tests/Consumers/GitHub/GitHub.csproj
           -c Release --no-restore
           -p:CandidateVersion=${{ vars.CANDIDATE_VERSION }}
+      - name: Run side-effect-free Validate profile
+        run: >-
+          dotnet run --project tests/Consumers/GitHub/GitHub.csproj
+          -c Release --no-build
+          -p:CandidateVersion=${{ vars.CANDIDATE_VERSION }}
