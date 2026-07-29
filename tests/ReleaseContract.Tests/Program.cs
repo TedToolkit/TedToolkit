@@ -71,10 +71,16 @@ static void ValidateConsumers(DirectoryInfo root)
 {
     var consumers = Path.Combine(root.FullName, "tests", "Consumers");
     var projects = Directory.GetFiles(
-        consumers,
-        "*.csproj",
-        SearchOption.AllDirectories);
-    Require(projects.Length == 3, "Exactly three consumers are required.");
+            consumers,
+            "*.csproj",
+            SearchOption.AllDirectories)
+        .Where(project =>
+            Path.GetRelativePath(consumers, project)
+                .Split(Path.DirectorySeparatorChar).Length == 2)
+        .ToArray();
+    Require(
+        projects.Length == 4,
+        "Exactly four package-only consumer hosts are required.");
 
     foreach (var project in projects)
     {
@@ -125,6 +131,33 @@ static void ValidateConsumers(DirectoryInfo root)
         && !baseline.Contains("http", StringComparison.OrdinalIgnoreCase)
         && !baseline.Contains(":\\", StringComparison.Ordinal),
         "The derived-consumer provenance allowlist is invalid.");
+    var compatibility = File.ReadAllText(Path.Combine(
+        consumers,
+        "EverythingButTheSink",
+        "Program.cs"));
+    Require(
+        compatibility.Contains(
+            "PipelineInputMode.ConsumeArtifacts",
+            StringComparison.Ordinal)
+        && compatibility.Contains(
+            "PipelineProfile.Message",
+            StringComparison.Ordinal)
+        && compatibility.Contains(
+            "PipelineProfile.Publish",
+            StringComparison.Ordinal)
+        && compatibility.Contains(
+            "IPipelineEventSink",
+            StringComparison.Ordinal)
+        && compatibility.Contains(
+            "IChangeDescriptionGenerator",
+            StringComparison.Ordinal)
+        && compatibility.Contains(
+            "linux-x64",
+            StringComparison.Ordinal)
+        && compatibility.Contains(
+            "win-x64",
+            StringComparison.Ordinal),
+        "The derived package-only compatibility fixture is incomplete.");
 }
 
 static void ValidateTemplatesAndWorkflow(DirectoryInfo root)
