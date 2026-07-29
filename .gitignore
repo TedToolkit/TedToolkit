@@ -10,7 +10,7 @@ temp
 
 output
 
-artifacts
+/artifacts/
 .nuget-packages/
 TestResults/
 
