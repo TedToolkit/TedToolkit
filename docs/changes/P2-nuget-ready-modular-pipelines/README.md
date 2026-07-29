@@ -2,11 +2,12 @@
 
 ## 📌 Status
 
-Approved — the 12-document design set at `0e01cced32f4d8e0946e54609880c617199a5b4c` governs production implementation.
+Proposed revision — the User selected external Sonar dependency activation on 2026-07-29; the committed revised baseline still requires explicit SHA approval before implementation resumes.
 
 - Change owner: User
 - Approval owner: User
-- Approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`
+- Last approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`
+- Proposed revised design baseline: Pending commit and User approval.
 
 ## 🚦 Change Priority
 
@@ -16,7 +17,7 @@ Approved — the 12-document design set at `0e01cced32f4d8e0946e54609880c617199a
 
 ## 🎯 Outcome and Scope
 
-Prepare the existing libraries as verified, publishable NuGet packages consumable by independent repositories. The final package set is `TedToolkit.CodeAnalysis`, `TedToolkit.ModularPipelines.Build`, and `TedToolkit.ModularPipelines.Combine`. CodeAnalysis does not override consumer rules. Build provides general build, test, explicit pack/publish-archive, and versioned artifact-manifest capabilities without binding to an AI or notification vendor. Combine can run Build in the same process or consume a manifest from an earlier CI job and internally selects either the GitHub or GitLab provider. GitLab supports arbitrary consumer-supplied instance and API URLs. This change prepares automatic-main publication but performs no live external push as implementation evidence; one human approval enables the release gate, a fresh full main build captures that enablement, and later successful main runs publish automatically.
+Prepare the existing libraries as verified, publishable NuGet packages consumable by independent repositories. The final package set is `TedToolkit.CodeAnalysis`, `TedToolkit.ModularPipelines.Build`, and `TedToolkit.ModularPipelines.Combine`. CodeAnalysis does not override consumer rules; it copies only audited Roslynator/StyleCop assets, keeps Sonar as an exact separately licensed dependency, and uses only ADR-002's minimal activation adapter so one consumer reference runs Sonar without copying its DLL. Build provides general build, test, explicit pack/publish-archive, and versioned artifact-manifest capabilities without binding to an AI or notification vendor. Combine can run Build in the same process or consume a manifest from an earlier CI job and internally selects either the GitHub or GitLab provider. GitLab supports arbitrary consumer-supplied instance and API URLs. This change prepares automatic-main publication but performs no live external push as implementation evidence; one human approval enables the release gate, a fresh full main build captures that enablement, and later successful main runs publish automatically.
 
 Scope includes package metadata, project separation, neutral change-description and event models, the cross-job artifact contract, configuration, GitHub/GitLab adapters, unit tests, independent consumer verification, side-effect-free CI dry runs, and release preparation.
 
@@ -33,10 +34,12 @@ Compatibility: The libraries do not yet have a stable public NuGet contract, so 
 ## 🧩 Governance and Decisions
 
 - Applicable principles and revisions: None; the repository contains no approved principle documents.
-- Related ADR and status: [ADR-001](../../adr/ADR-001-public-pipeline-package-boundaries.md) (Proposed).
-- Related architecture record and revision: [ModularPipelines Public Package Boundaries](../../architecture/modular-pipelines-packaging.md) (Draft, not approved).
+- Related ADRs and status: [ADR-001](../../adr/ADR-001-public-pipeline-package-boundaries.md) (Accepted) and [ADR-002](../../adr/ADR-002-activate-sonar-through-an-external-package-dependency.md) (Proposed).
+- Related architecture record and revision: [ModularPipelines Public Package Boundaries](../../architecture/modular-pipelines-packaging.md) (Proposed revision; last approved at `0e01cced32f4d8e0946e54609880c617199a5b4c`).
 - Approval baseline: Commit all 12 documents in this design set (ADR, architecture record, README, blueprint, release contract, test strategy, and six work items) together as the proposed baseline. User approval must cite that immutable commit SHA. A later status-only administrative commit may record `Approved design revision: <sha>` in this section; implementation remains governed by the cited earlier revision, so the approval record never needs to approve itself.
-- Approved design revision: Not approved.
+- Approved design revision: `0e01cced32f4d8e0946e54609880c617199a5b4c`.
+- Revised approval baseline: Commit ADR-002 and every affected design document together, then obtain explicit User approval citing that immutable commit SHA. A later status-only administrative commit records acceptance without changing the approved behavior.
+- Proposed revised design revision: Pending commit and User approval.
 - Reapproval triggers: Changes to public APIs, package list, target frameworks, version strategy, manifest schema, GitLab URL security, provider technology, or behavior cases.
 
 ## 🧭 Planned Approach
@@ -48,7 +51,7 @@ The implementation directories, project references, public/internal types, resou
 ## ✅ Completion Criteria
 
 - Every package has complete metadata, a package-specific README, license, icon, repository link, and the required symbol-package configuration.
-- CodeAnalysis provides analyzers only. It does not override consumer `.editorconfig` or warning policy and does not produce a Strict package.
+- CodeAnalysis provides copied audited Roslynator/StyleCop analyzers and CodeFixes plus automatic activation of the exact external `SonarAnalyzer.CSharp [10.23.0.137933]` dependency. It contains no Sonar DLL, does not override consumer `.editorconfig` or warning policy, and does not produce a Strict package.
 - Build exposes `AddBuildPipeline` and runs its five active local graphs without referencing Combine. Combine exposes `AddStandardPipeline`, maps its active profiles to Build, and runs side-effect-free profiles when no remote action is selected.
 - Build's dependencies and public APIs contain no Gemini, OpenAI, `Microsoft.Extensions.AI`, TextCopy, or notification SDK. Build, test, and pack succeed when no `IChangeDescriptionGenerator` is registered.
 - Build references no hosting-platform SDK. Combine exposes no hosting SDK type in its public API and selects exactly one internal GitHub or GitLab provider.
@@ -74,13 +77,13 @@ The implementation directories, project references, public/internal types, resou
 ## ⏱️ Workload Estimate
 
 - Person-month basis: One month of full-time project capacity from a developer familiar with .NET, NuGet, and CI. This is not converted into hours or calendar dates.
-- Work-package total: 2.38–3.85 person-months.
+- Work-package total: 2.41–3.90 person-months.
 - Coordination, verification, migration, and release preparation: 0.25–0.40 person-months.
 - Contingency: 0.25–0.45 person-months for manifest compatibility, package-asset surprises, one-time release-history capture, interrupted version-file restoration, immutable per-package checkpoint/partial-publication recovery, provider-neutral Release finalization, retry/idempotency behavior, and self-hosted GitLab proxy behavior not covered by the planned PoCs.
-- Total planning range: 2.88–4.70 person-months.
-- Confidence: Low–Medium; provider-client selection and analyzer redistribution still require planned evidence, but that work is now included in the owning work packages.
-- Assumptions and exclusions: The complete current explicit and analyzer-bundled CodeFix provider set and each retained Roslyn-versioned variant have licensable, loadable dependency closures and preserve valid NuGet/SDK host selection, and one acceptable client per provider satisfies the contracts; a failed CodeFix audit/selection/load test or provider PoC blocks the owning work package and may require reapproval. NuGet.org organization access, signing certificates, final release approval, third-platform support, and modification of the EverythingButTheSink repository are excluded.
-- Re-estimation trigger: Reapprove when adding a platform or persistent service, making a breaking manifest change, invalidating the current boundary through a PoC, adding real EverythingButTheSink migration, changing the TedToolkit Build-host compatibility boundary, or exceeding 4.70 person-months.
+- Total planning range: 2.91–4.75 person-months.
+- Confidence: Low–Medium; provider-client selection, copied-analyzer redistribution, and exact Sonar dependency activation still require planned evidence, but that work is included in the owning work packages.
+- Assumptions and exclusions: The complete copied Roslynator/StyleCop CodeFix provider set and each retained Roslyn-versioned variant have licensable, loadable dependency closures and preserve valid NuGet/SDK host selection; the exact Sonar package layout supports the narrowly bounded activation adapter; and one acceptable client per provider satisfies the contracts. A failed CodeFix audit/selection/load test, Sonar activation PoC, or provider PoC blocks the owning work package and may require reapproval. NuGet.org organization access, signing certificates, final release approval, third-platform support, and modification of the EverythingButTheSink repository are excluded.
+- Re-estimation trigger: Reapprove when adding a platform or persistent service, making a breaking manifest change, invalidating the current boundary through a PoC, adding real EverythingButTheSink migration, changing the TedToolkit Build-host compatibility boundary, or exceeding 4.75 person-months.
 
 ## 🚧 Plan Blockers
 
@@ -90,12 +93,13 @@ The implementation directories, project references, public/internal types, resou
 | PB-02 | The current checkout's Build configuration contains a non-empty credential-like AI value; its value has not been copied into these documents | P2-NUPIPE-003 host migration, P2-NUPIPE-006 CI evidence, and release readiness | User rotates it; the migrated workflow removes AI secrets, and examples, fixtures, packages, and logs permit only empty values or environment placeholders | Open |
 | PB-03 | GitHub Actions test-repository and GitLab test-project/runner access is not yet recorded | P2-NUPIPE-006 BC-006-8 and release readiness only | User provides both environments before real CI evidence is collected; local or mocked tests do not replace this gate | Open |
 | PB-04 | The current CodeAnalysis graph explicitly references `Roslynator.CodeFixes`, and several selected analyzer packages also carry their own code-fix DLLs in Roslyn-versioned asset subtrees | P2-NUPIPE-001 scope and IDE compatibility approval | Resolved by User decision: preserve the complete current code-fix provider set and its audited host-compatible variants, retaining distinct upstream Roslyn-versioned paths; any asset or variant that fails license, dependency-closure, selection, or isolated-host loading blocks 001 and requires revised User approval rather than flattening or silent removal | Resolved |
+| PB-05 | The CodeAnalysis dependency-activation revision is not yet committed and SHA-approved | P2-NUPIPE-001 | Commit ADR-002 and the affected design documents, then obtain explicit User approval citing that immutable SHA | Open |
 
 ## 🗺️ Delivery Map
 
 | ID | Work package | Outcome | Priority and rationale | Estimate | Prerequisites | Status | Document |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| P2-NUPIPE-001 | CodeAnalysis package assets | Audited analyzer asset package is independently consumable | P2 — independently enables analyzer publication | 0.15–0.25 person-months | Approval baseline | Planned | `work-items/P2-NUPIPE-001-codeanalysis-package.md` |
+| P2-NUPIPE-001 | CodeAnalysis package assets | Audited copied assets plus exact external Sonar activation are independently consumable | P2 — independently enables analyzer publication | 0.18–0.30 person-months | Revised approval baseline | Blocked — revised baseline SHA approval required | `work-items/P2-NUPIPE-001-codeanalysis-package.md` |
 | P2-NUPIPE-002 | Build | Shared dependency baseline, resources, neutral descriptions, safe commands, pure calendar versioning, recoverable temporary MSBuild stamping, explicit pack/publish archives, failure manifest, and platform-neutral build | P2 — foundation for later composition | 0.48–0.75 person-months | ADR-001 | Planned | `work-items/P2-NUPIPE-002-core-and-build.md` |
 | P2-NUPIPE-003 | Combine and repository Build-host migration | Two input modes, explicit profiles/actions, neutral package checkpoints/events/Release-finalization contract, direct host ProjectReferences, coordinated calendar/progress/tag workflow with provider mutation still gated off, least-privilege artifact/push jobs, and compatibility gates | P2 — consumer entry point and first real migration | 0.75–1.20 person-months | 001, 002 | Planned | `work-items/P2-NUPIPE-003-combine-profiles.md` |
 | P2-NUPIPE-004 | Combine GitHub provider | Client evidence, approved supplemental ADR, and idempotent GitHub automation with resumable Release-asset and Release-finalization ordering | P2 — provides the approved corrected GitHub release outcome | 0.30–0.50 person-months | 002, 003 | Planned | `work-items/P2-NUPIPE-004-github-adapter.md` |
@@ -108,7 +112,7 @@ The implementation directories, project references, public/internal types, resou
 | --- | --- | --- |
 | A platform SDK API or authentication model does not cover required operations | Adapter design must change | Verify capabilities with a small contract PoC before implementation |
 | The SDK-internal pack hook changes under an unpinned or upgraded .NET SDK | Combine can silently fall back to a minimum-version Build dependency unless packing is blocked | Pin the PoC-approved .NET 10 SDK patch in root `global.json` with roll-forward disabled, install it in CI, inspect the generated nuspec on every release, and require a fresh approved PoC before changing the SDK |
-| Analyzer redistribution omits runtime dependencies or required notices | Consumers cannot load analyzers | Make the audit and offline fixture the first acceptance gate in 001 |
+| Copied analyzer redistribution omits runtime dependencies/notices, or the exact Sonar adapter fails to activate its external DLL | Consumers cannot load all intended analyzers | Make the disposition audit and package-only offline activation fixture the first acceptance gate in 001; never fall back to copying Sonar |
 | A required explicit or analyzer-bundled code-fix asset or Roslyn-versioned variant fails license, dependency-closure, NuGet/SDK selection, or isolated Roslyn-host validation | The approved compatibility-preserving CodeAnalysis package cannot ship as designed | Block 001 and return for revised User approval; do not flatten variants, silently omit assets, or partially preserve the current code-fix set |
 | Self-hosted GitLab uses path prefixes or an HTTP proxy | URL and token-safety behavior may fail | Cover explicit API URLs, URI validation, and proxy-relevant shapes in 005 |
 | Manifest v1 omits multi-RID or cross-job information | Combine cannot reproduce Build results | Round-trip the current EverythingButTheSink output before finalizing 002 |
@@ -127,7 +131,7 @@ Retain ADR-001 and the architecture record after completion. The change design a
 Before implementation approval, the approver must confirm:
 
 1. The three-package boundary, initial `net10.0` target, and no compatibility layer for the first release are acceptable.
-2. `TedToolkit.CodeAnalysis` redistributes only licensed, audited assets, excludes `build`/`buildTransitive`, rules, and unrelated tools, and preserves the complete current explicit and analyzer-bundled CodeFix provider set plus its host-compatible variants under distinct upstream Roslyn-versioned paths; license, dependency-closure, NuGet/SDK selection, and isolated-host validation are mandatory, and any failure blocks 001 rather than flattening variants or silently removing behavior.
+2. `TedToolkit.CodeAnalysis` copies only licensed audited Roslynator/StyleCop assets, preserves their complete current CodeFix provider set and host-compatible variants under distinct upstream Roslyn-versioned paths, declares exact external `SonarAnalyzer.CSharp [10.23.0.137933]`, contains no Sonar DLL, and permits only the two ADR-002 `buildTransitive` activation files. License, dependency-closure, NuGet/SDK selection, isolated-host validation, exact dependency, automatic activation, and consumer-policy precedence are mandatory; any failure blocks 001 rather than flattening variants, silently removing behavior, or copying Sonar.
 3. Build and Combine depend on no concrete AI or notification SDK; Gemini and Feishu remain optional consumer adapters.
 4. `PipelineArtifactManifest` v1, `RunBuild`/`ConsumeArtifacts`, and the six profile graphs are acceptable.
 5. GitHub and GitLab clients are selected only after their work packages produce PoC evidence and supplemental ADR approval.

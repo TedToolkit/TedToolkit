@@ -1,6 +1,6 @@
 # Test Strategy and Traceability
 
-> Status: Approved. Approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`. Every test project uses TUnit as an executable project (`OutputType=Exe`). Tests run through `dotnet run --configuration Release`; each test method has an English XML `summary`, and every assertion is awaited.
+> Status: Proposed revision. Last approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`. Proposed revised baseline: pending commit and User approval. Every test project uses TUnit as an executable project (`OutputType=Exe`). Tests run through `dotnet run --configuration Release`; each test method has an English XML `summary`, and every assertion is awaited.
 
 ## Test Projects and Responsibilities
 
@@ -19,10 +19,10 @@
 
 | Behavior case | Test name/shape | Key assertion |
 | --- | --- | --- |
-| BC-001-0 | `Should_pack_only_audited_analyzer_assets_without_flattening_host_variants` | Every selected analyzer/CodeFix/runtime DLL maps by exact relative path and host variant to the resolved PB-04 inventory with license, NOTICE, dependency, selection, and Roslyn-host evidence; host-neutral and `roslyn<major>.<minor>` subtrees remain distinct; same-name variant binaries never collide; any missing required evidence blocks the package |
-| BC-001-1 | `Should_report_known_diagnostic_select_one_compatible_variant_and_load_all_codefixes` | Package-only selector fixtures resolve every candidate TedToolkit package locally, show exactly one compatible Analyzer variant with sibling variants absent, and report a known diagnostic; isolated offline Roslyn-host fixtures for every retained variant discover every approved current CodeFix provider and load its complete closure |
+| BC-001-0 | `Should_pack_only_audited_copied_assets_and_keep_sonar_external` | Every copied analyzer/CodeFix/runtime DLL maps by exact relative path and host variant to the resolved PB-04 inventory with license, NOTICE, dependency, selection, and Roslyn-host evidence; host-neutral and `roslyn<major>.<minor>` subtrees remain distinct; same-name variant binaries never collide; Sonar appears only as exact external dependency evidence |
+| BC-001-1 | `Should_activate_exact_sonar_dependency_select_one_compatible_variant_and_load_all_codefixes` | Package-only selector fixtures resolve every candidate TedToolkit package and exact `SonarAnalyzer.CSharp 10.23.0.137933` locally, show the external Sonar DLL automatically added as an Analyzer, select exactly one compatible copied Analyzer variant with sibling variants absent, and report a known Sonar diagnostic; isolated offline Roslyn-host fixtures for every retained copied variant discover every approved current CodeFix provider and load its complete closure |
 | BC-001-2 | `Should_preserve_consumer_severity_when_editorconfig_is_present` | The same diagnostic respects `none`, `warning`, and `error` |
-| BC-001-3, BC-006-4 | `Should_contain_only_declared_package_assets_when_packed` | Nuspec/ZIP/PDB content, resolved PB-04 per-path/per-host complete-preservation inventory, and locked dependency/license/vulnerability inventory satisfy the release contract with no missing current CodeFix provider/variant and no flattened path collision |
+| BC-001-3, BC-006-4 | `Should_contain_only_declared_package_assets_when_packed` | Nuspec/ZIP/PDB content, resolved PB-04 per-path/per-host copied-asset inventory, exact Sonar dependency, two permitted activation files, and locked dependency/license/vulnerability inventory satisfy the release contract with no Sonar DLL, missing current copied CodeFix provider/variant, flattened path collision, or unrelated MSBuild behavior |
 | BC-002-1..3 | `Should_collect_results_without_remote_service_types` and related tests | Call sequence, output placement, absence of remote publication/Git mutation services, and presence of only the bounded recoverable temporary version-file transaction |
 | BC-002-4, 004-4, provider public surfaces | `Should_not_expose_provider_sdk_types_from_public_api` | Reflect every public/protected signature and assembly reference |
 | BC-002-5..7 | `Should_compose_resource_in_declared_precedence` | Base/overlay/replacement, hash, atomic write, and path-escape rejection |
@@ -47,7 +47,7 @@
 
 Each work package loops through one failing minimal TUnit test, the corresponding Release run, the smallest implementation, and a rerun. Do not migrate a full source batch before tests.
 
-1. P2-NUPIPE-001: analyzer inventory/license/dependency gate → package metadata → local-source restore/build → `.editorconfig` diagnostic severity.
+1. P2-NUPIPE-001: analyzer disposition/license/dependency gate → exact Sonar dependency-activation PoC → package metadata and copied assets → local-source restore/build → `.editorconfig` diagnostic severity.
 2. P2-NUPIPE-002: dependency-baseline PoC → models/root safety → resources → pure calendar policy → temporary version transaction/recovery → both test commands → failure/restoration DAG → pack/publish archives → exact manifest round trip → opt-in descriptions → dependency boundary.
 3. P2-NUPIPE-003: neutral context resolver → profile/action/write matrix → input/failed-manifest gate → strict configuration → secret resolver/NuGet push → default-off package-checkpoint contract → change-request policy → rich results/events → provider-neutral Release finalizer contract → extension hook → actual `Build/Program.cs` ProjectReference/local parity → one-time release-history capture/acceptance → tag-based calendar version, SDK-visible stamping, exact restoration, and serialized workflow split → gated local package/progress/tag push against fake boundaries → failure ownership → optional adapter.
 4. P2-NUPIPE-004: isolated client PoC → User-approved supplemental ADR → context/connection/URI/auth → no-op → PR/Release idempotency → revision → draft-first resumable hash-safe assets → empty-artifact Release finalization → API contract.

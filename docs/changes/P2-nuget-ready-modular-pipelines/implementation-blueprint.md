@@ -1,6 +1,6 @@
 # P2 Implementation Blueprint: NuGet Packages, Directories, APIs, and Tests
 
-> Status: Approved. Approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`. This document constrains implementation of the [P2 change](README.md). If it conflicts with the [architecture record](../../architecture/modular-pipelines-packaging.md) or ADR-001, the approved ADR takes precedence.
+> Status: Proposed revision. Last approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`. Proposed revised baseline: pending commit and User approval. This document constrains implementation of the [P2 change](README.md). If it conflicts with the [architecture record](../../architecture/modular-pipelines-packaging.md), ADR-001, or ADR-002, the accepted ADR takes precedence.
 
 ## 1. Final Solution Structure
 
@@ -9,6 +9,9 @@ TedToolkit.slnx
 │
 ├─ TedToolkit.CodeAnalysis/
 │  ├─ TedToolkit.CodeAnalysis.csproj
+│  ├─ buildTransitive/
+│  │  ├─ TedToolkit.CodeAnalysis.props
+│  │  └─ TedToolkit.CodeAnalysis.targets
 │  └─ README.md
 │
 ├─ TedToolkit.ModularPipelines.Build/
@@ -70,6 +73,7 @@ TedToolkit.slnx
 │
 └─ docs/
    ├─ adr/ADR-001-public-pipeline-package-boundaries.md
+   ├─ adr/ADR-002-activate-sonar-through-an-external-package-dependency.md
    ├─ architecture/modular-pipelines-packaging.md
    └─ changes/P2-nuget-ready-modular-pipelines/
 ```
@@ -80,7 +84,8 @@ Keep the old `TedToolkit.ModularPipelines/` as a transitional source directory u
 
 ```text
 TedToolkit.CodeAnalysis
-  └─ analyzer NuGet dependencies only
+  ├─ copied audited Roslynator/StyleCop analyzer and CodeFix assets
+  └─ exact external dependency: SonarAnalyzer.CSharp [10.23.0.137933]
 
 TedToolkit.ModularPipelines.Build
   ├─ ModularPipelines
@@ -106,6 +111,7 @@ Independent host that calls both APIs
 Hard rules:
 
 - CodeAnalysis references neither Build, Combine, nor another repository project.
+- CodeAnalysis never copies `SonarAnalyzer.CSharp.dll`; its only permitted MSBuild assets are the two ADR-002 `buildTransitive` activation files.
 - Build references neither Combine nor GitHub, GitLab, Octokit, NGitLab, or an equivalent hosting SDK.
 - Build references no Gemini, OpenAI, `Microsoft.Extensions.AI`, TextCopy, Feishu, or concrete AI/notification SDK.
 - Combine references no Feishu, Slack, Teams, or other notification SDK. Consumers register notification implementations through neutral interfaces.
@@ -127,6 +133,9 @@ TedToolkit.CodeAnalysis.nupkg
 ├─ Icon.jpg
 ├─ LICENSE.txt
 ├─ THIRD-PARTY-NOTICES.txt
+├─ buildTransitive/
+│  ├─ TedToolkit.CodeAnalysis.props
+│  └─ TedToolkit.CodeAnalysis.targets
 └─ analyzers/dotnet/
    ├─ cs/
    │  └─ <audited host-neutral analyzer/CodeFix DLLs and runtime dependencies>
@@ -136,7 +145,7 @@ TedToolkit.CodeAnalysis.nupkg
       └─ <audited Roslyn 4.7-compatible variant set>
 ```
 
-CodeAnalysis contains no `lib/`, `build/`, or `buildTransitive/`, but it directly delivers analyzer assets because normal NuGet dependency flow does not guarantee transitive analyzer loading. PB-04 is resolved by preserving the complete current explicit and analyzer-bundled CodeFix provider set plus every audited host-compatible variant. P2-NUPIPE-001 selects only licensed analyzer DLLs, every required CodeFix DLL, and their runtime dependencies from audited upstream packages. Host-neutral assets use `analyzers/dotnet/cs/`; each upstream Roslyn-versioned set retains its distinct `analyzers/dotnet/roslyn<major>.<minor>/cs/` path. The implementation must not flatten same-name binaries from different variants. Offline package-selector fixtures must prove that each supported consumer selects exactly one compatible set, and isolated Roslyn-host fixtures must load the complete provider/dependency closure for every retained variant. If any required asset or variant fails license, dependency-closure, selection, or load validation, 001 blocks and returns for revised User approval rather than flattening or silently omitting behavior.
+CodeAnalysis contains no `lib/` or `build/`. It copies the audited Roslynator/StyleCop analyzer and CodeFix assets because normal NuGet dependency flow does not guarantee transitive analyzer loading. Sonar is the sole exception: the nuspec declares the exact external dependency `SonarAnalyzer.CSharp [10.23.0.137933]`, the nupkg contains no Sonar DLL, and only the two named `buildTransitive` files may locate that exact restored DLL, add it as an `Analyzer`, and fail closed when it is absent. They must not set an `.editorconfig`, ruleset, `AdditionalFiles`, warning property, severity, package source, credential, or unrelated MSBuild property/item. PB-04 is resolved by preserving the complete current copied CodeFix provider set plus every audited host-compatible variant. P2-NUPIPE-001 selects only licensed copied analyzer DLLs, every required copied CodeFix DLL, and their runtime dependencies from audited upstream packages. Host-neutral copied assets use `analyzers/dotnet/cs/`; each upstream Roslyn-versioned set retains its distinct `analyzers/dotnet/roslyn<major>.<minor>/cs/` path. The implementation must not flatten same-name binaries from different variants. Offline package-selector fixtures must prove that each supported consumer selects exactly one compatible copied set and automatically receives the exact external Sonar analyzer; isolated Roslyn-host fixtures must load the complete copied provider/dependency closure for every retained variant. If any required copied asset or variant fails license, dependency-closure, selection, or load validation, or if the Sonar activation PoC is unstable, 001 blocks and returns for revised User approval rather than flattening, silently omitting behavior, or copying Sonar.
 
 It must not contain or transitively introduce:
 
