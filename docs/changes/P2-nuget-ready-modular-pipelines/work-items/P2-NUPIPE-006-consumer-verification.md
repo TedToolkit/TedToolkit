@@ -83,7 +83,7 @@ After P2-NUPIPE-003, the actual repository Build host and its GitHub workflow ar
 
 ## 📋 Completion Evidence
 
-Local evidence uses coordinated candidate `2026.7.29.3`: all three package-only fixtures restored and built strictly, Build-only and GitHub Validate ran, GitLab RunBuild and cross-process ConsumeArtifacts ran, and ReleaseContract validated package contents, versions, symbols, exact dependencies, provenance, workflow/templates, and the accepted baseline. Real GitHub/GitLab run links remain required before this item can become Completed.
+Local evidence uses coordinated candidate `2026.7.29.3`: all three package-only fixtures restored and built strictly, Build-only and GitHub Validate ran, GitLab RunBuild and cross-process ConsumeArtifacts ran, and ReleaseContract validated package contents, versions, symbols, exact dependencies, provenance, workflow/templates, and the accepted baseline. The real side-effect-free GitHub Actions run [30461479405](https://github.com/TedToolkit/TedToolkit/actions/runs/30461479405) passed on Ubuntu with publication/recovery jobs skipped. A real GitLab run link remains required before this item can become Completed.
 
 ## 🔄 Migration and Rollback
 
