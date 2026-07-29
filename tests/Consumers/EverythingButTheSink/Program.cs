@@ -287,7 +287,13 @@ static async Task ConsumeAsync(DirectoryInfo producerRoot)
     await using var server = new FakeGitLabServer();
     await server.StartAsync();
     var originalPath = Environment.GetEnvironmentVariable("PATH");
-    var fakeDotnetLog = Path.Combine(isolated.FullName, "fake-dotnet.jsonl");
+    var boundaryDirectory = new DirectoryInfo(Path.Combine(
+        root.FullName,
+        "temp"));
+    boundaryDirectory.Create();
+    var fakeDotnetLog = Path.Combine(
+        boundaryDirectory.FullName,
+        "fake-dotnet.jsonl");
     InstallFakeDotnet();
     Environment.SetEnvironmentVariable(
         "PATH",
@@ -305,7 +311,9 @@ static async Task ConsumeAsync(DirectoryInfo producerRoot)
     Environment.SetEnvironmentVariable(
         "CI_COMMIT_SHA",
         CompatibilityConstants.SourceRevision);
-    var nugetConfig = Path.Combine(isolated.FullName, "fake-nuget.config");
+    var nugetConfig = Path.Combine(
+        boundaryDirectory.FullName,
+        "fake-nuget.config");
     await File.WriteAllTextAsync(
         nugetConfig,
         """
@@ -451,7 +459,7 @@ static async Task<IReadOnlyList<string>> RunConsumerProfileAsync(
                 {
                     Source = new("https://nuget.invalid/v3/index.json"),
                     AuthenticationMode = NuGetAuthenticationMode.NuGetConfig,
-                    ConfigFilePath = "output/fake-nuget.config",
+                    ConfigFilePath = "temp/fake-nuget.config",
                 }
                 : null,
             Publication = profile == PipelineProfile.Publish
