@@ -213,6 +213,12 @@ static void ValidateTemplatesAndWorkflow(DirectoryInfo root)
         && workflow.Contains(
             "Restore package-only consumers",
             StringComparison.Ordinal)
+        && workflow.Contains(
+            "EverythingButTheSink.csproj",
+            StringComparison.Ordinal)
+        && workflow.Contains(
+            "-- consume",
+            StringComparison.Ordinal)
         && !workflow.Contains(
             "pull-requests: write",
             StringComparison.Ordinal)

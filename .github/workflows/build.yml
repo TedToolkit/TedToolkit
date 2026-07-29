@@ -114,6 +114,8 @@ jobs:
           dotnet restore tests/Consumers/BuildOnly/BuildOnly.csproj --configfile tests/Consumers/NuGet.config -p:CandidateVersion="$CANDIDATE_VERSION"
           dotnet restore tests/Consumers/GitHub/GitHub.csproj --configfile tests/Consumers/NuGet.config -p:CandidateVersion="$CANDIDATE_VERSION"
           dotnet restore tests/Consumers/GitLab/GitLab.csproj --configfile tests/Consumers/NuGet.config -p:CandidateVersion="$CANDIDATE_VERSION"
+          dotnet restore tests/Consumers/EverythingButTheSink/EverythingButTheSink.csproj --configfile tests/Consumers/NuGet.config -p:CandidateVersion="$CANDIDATE_VERSION"
+          dotnet restore tests/Consumers/EverythingButTheSink/FixtureApp.Tests/FixtureApp.Tests.csproj
 
       - name: Strict-build package-only consumers
         env:
@@ -122,6 +124,7 @@ jobs:
           dotnet build tests/Consumers/BuildOnly/BuildOnly.csproj -c Release --no-restore -warnaserror -p:CandidateVersion="$CANDIDATE_VERSION"
           dotnet build tests/Consumers/GitHub/GitHub.csproj -c Release --no-restore -warnaserror -p:CandidateVersion="$CANDIDATE_VERSION"
           dotnet build tests/Consumers/GitLab/GitLab.csproj -c Release --no-restore -warnaserror -p:CandidateVersion="$CANDIDATE_VERSION"
+          dotnet build tests/Consumers/EverythingButTheSink/EverythingButTheSink.csproj -c Release --no-restore -warnaserror -p:CandidateVersion="$CANDIDATE_VERSION"
 
       - name: Run side-effect-free package-only consumers
         env:
@@ -130,6 +133,8 @@ jobs:
           dotnet run --project tests/Consumers/BuildOnly/BuildOnly.csproj -c Release --no-build -p:CandidateVersion="$CANDIDATE_VERSION"
           dotnet run --project tests/Consumers/GitHub/GitHub.csproj -c Release --no-build -p:CandidateVersion="$CANDIDATE_VERSION"
           dotnet run --project tests/Consumers/GitLab/GitLab.csproj -c Release --no-build -p:CandidateVersion="$CANDIDATE_VERSION"
+          dotnet run --project tests/Consumers/EverythingButTheSink/EverythingButTheSink.csproj -c Release --no-build -p:CandidateVersion="$CANDIDATE_VERSION" -- produce
+          dotnet run --project tests/Consumers/EverythingButTheSink/EverythingButTheSink.csproj -c Release --no-build -p:CandidateVersion="$CANDIDATE_VERSION" -- consume
 
       - name: Consume GitLab artifact manifest in a second process
         env:
