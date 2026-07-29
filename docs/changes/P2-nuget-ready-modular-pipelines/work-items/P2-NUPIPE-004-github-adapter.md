@@ -2,7 +2,7 @@
 
 ## 📌 Status
 
-Approved
+Completed
 
 ## 🚦 Delivery Priority
 
@@ -84,12 +84,12 @@ Non-goals: no GitLab behavior changes; no general build modules inside a GitHub-
 - Confidence: Low–Medium.
 - Assumptions: At least one candidate supports Enterprise URLs, a fakeable HTTP/client boundary, the required draft-Release ordering, and idempotent Release-only lookup/create without package bytes; otherwise this work package returns to design review.
 - Exclusions: Integration tests against a real GitHub repository and production secret configuration.
-- Actual effort: Not completed.
-- Variance: Not completed.
+- Actual effort: Completed on 2026-07-29 in implementation commit `f14ed04a2c7ba8f123bbe3b7e65e813d91ee4a8c`.
+- Variance: ADR-003 selected a dependency-free internal HTTP client rather than adding a hosting SDK.
 
 ## 📋 Completion Evidence
 
-Record the Phase A PoC, approved supplemental ADR, selected dependency version, and provider unit/contract tests. The side-effect-free GitHub CI dry run is owned by P2-NUPIPE-006.
+ADR-003 and 7 provider tests cover explicit Enterprise URLs, event-file context, PR reuse, recursive annotated-tag peeling, Release-only finalization, and streaming public GitHub asset upload. The side-effect-free GitHub CI dry run remains owned by P2-NUPIPE-006.
 
 ## 🔄 Migration and Rollback
 

@@ -2,7 +2,7 @@
 
 ## 📌 Status
 
-Approved
+In review — external CI evidence blocked
 
 ## 🚦 Delivery Priority
 
@@ -78,12 +78,12 @@ After P2-NUPIPE-003, the actual repository Build host and its GitHub workflow ar
 - Confidence: Low–Medium.
 - Assumptions: Candidate packages restore through source mapping, the external baseline is accessible, CI artifact copying preserves content, P2-NUPIPE-003 supplies User-accepted immutable release-history evidence, and User can provide test-project/runner access with permission to execute workflows but no permission or enabled switch for remote mutation.
 - Exclusions: NuGet.org permissions, remote resource creation, production CI rollout, modification of EverythingButTheSink, and final release approval.
-- Actual effort: Not completed.
-- Variance: Not completed.
+- Actual effort: Local implementation and verification completed on 2026-07-29; external CI execution remains pending.
+- Variance: No GitLab test project/runner is connected to this workspace, so the required real side-effect-free GitLab CI link cannot yet be recorded.
 
 ## 📋 Completion Evidence
 
-Record the temporary-source location, fixture restore/build output, manifest copy and source-revision validation, test results, package checks, CI template checks, side-effect-free GitHub/GitLab run links and logs, coordinated resolved version, accepted release-history evidence/hash verification, and the pre-release manual checklist.
+Local evidence uses coordinated candidate `2026.7.29.3`: all three package-only fixtures restored and built strictly, Build-only and GitHub Validate ran, GitLab RunBuild and cross-process ConsumeArtifacts ran, and ReleaseContract validated package contents, versions, symbols, exact dependencies, provenance, workflow/templates, and the accepted baseline. Real GitHub/GitLab run links remain required before this item can become Completed.
 
 ## 🔄 Migration and Rollback
 

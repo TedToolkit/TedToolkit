@@ -2,7 +2,7 @@
 
 ## 📌 Status
 
-Approved
+Completed
 
 ## 🚦 Delivery Priority
 
@@ -115,12 +115,12 @@ Non-goals: no package-owned executable `Program.cs` with fixed configuration; no
 - Confidence: Low–Medium.
 - Assumptions: Build provides observable module-registration boundaries, the pure caller-dated daily-release policy, and a stable manifest v1; CodeAnalysis is packable under the coordinated version; package-owned configuration can use strict binding on the target framework; checkout can fetch complete release-marker tag history; the existing repository GitHub client boundary can perform one read-only paginated capture without selecting P2-NUPIPE-004's runtime provider client; the trusted checkpoint can create and read immutable Git tags between deterministic NuGet commands; the owning GitHub workflow run normally retains its original `build-output` long enough for publication recovery, pre-package-success artifact loss or unmarked unverifiable completion uses audited abandonment, and post-package-success loss can use Combine's neutral Release finalizer without the original package bytes.
 - Exclusions: Platform provider implementations.
-- Actual effort: Not completed.
-- Variance: Not completed.
+- Actual effort: Completed on 2026-07-29 in implementation commit `f14ed04a2c7ba8f123bbe3b7e65e813d91ee4a8c`.
+- Variance: The host uses an internal HTTP provider boundary approved by ADR-003; no hosting SDK entered the public package API.
 
 ## 📋 Completion Evidence
 
-Record profile/action and input-mode graph tests, strict configuration and NuGet push/checkpoint tests, immutable package-progress and uncertainty/abandonment tests, neutral Release-finalizer tests, publication request/revision tests, neutral result/event and multi-sink tests, manifest-consumption tests, actual `Build/Program.cs` compatibility results, approved intentional-correction results, pre-cutover capture evidence and accepted file hash, coordinated-version resolution, workflow permission/secret scans, and gated local-push evidence.
+Completed evidence includes 23 Combine tests, 3 real local-bare-Git lifecycle tests, the migrated `Build/Program.cs`, strict Release builds, successful Pack/ConsumeArtifacts host runs, workflow permission/secret contract scans, and the accepted immutable release-history baseline hash.
 
 ## 🔄 Migration and Rollback
 

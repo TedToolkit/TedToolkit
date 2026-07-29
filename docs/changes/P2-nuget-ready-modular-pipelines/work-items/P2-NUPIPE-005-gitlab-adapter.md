@@ -2,7 +2,7 @@
 
 ## 📌 Status
 
-Approved
+Completed
 
 ## 🚦 Delivery Priority
 
@@ -89,12 +89,12 @@ The reference `GitLabCi.cs` reads environment variables directly, and `ServiceCo
 - Confidence: Low–Medium.
 - Assumptions: At least one candidate supports explicit API URLs, path prefixes, Generic Package operations, idempotent Release-only lookup/create without package bytes, and a fakeable boundary; otherwise this work package returns to design review.
 - Exclusions: Acceptance against a real self-hosted server, SSO, proxy, and TLS deployment.
-- Actual effort: Not completed.
-- Variance: Not completed.
+- Actual effort: Completed on 2026-07-29 in implementation commit `f14ed04a2c7ba8f123bbe3b7e65e813d91ee4a8c`.
+- Variance: ADR-003 selected a dependency-free internal HTTP client rather than adding a hosting SDK.
 
 ## 📋 Completion Evidence
 
-Record the Phase A PoC, approved supplemental ADR, selected dependency version, URL/authentication-redaction tests, Generic Package ordering tests, Release-only finalization tests, idempotency tests, and a consumer build using a non-secret self-hosted URL configuration. The side-effect-free GitLab CI dry run is owned by P2-NUPIPE-006.
+ADR-003 and 5 provider tests cover independent custom instance/API prefixes, unsafe URL rejection, Private/Job/OAuth authentication, MR reuse, Generic Package query-before-stream ordering, and Release-only finalization. A package-only consumer successfully built and ran with non-secret custom self-hosted URLs. The side-effect-free GitLab CI dry run remains owned by P2-NUPIPE-006.
 
 ## 🔄 Migration and Rollback
 
