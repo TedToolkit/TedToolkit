@@ -188,14 +188,6 @@ static BuildInputs CreateBuildInputs(
                     File = app,
                     Arguments = ["--no-restore",],
                 },
-                CreateRuntimeBuildTarget(
-                    app,
-                    "fixture-app-linux",
-                    "linux-x64"),
-                CreateRuntimeBuildTarget(
-                    app,
-                    "fixture-app-windows",
-                    "win-x64"),
             ]
             : [],
         TestTargets = includeProducers
@@ -233,26 +225,6 @@ static BuildInputs CreateBuildInputs(
     };
 }
 
-static BuildTarget CreateRuntimeBuildTarget(
-    FileInfo app,
-    string name,
-    string runtimeIdentifier)
-{
-    return new()
-    {
-        Name = name,
-        File = app,
-        Arguments =
-        [
-            "--no-restore",
-            "--runtime",
-            runtimeIdentifier,
-            "--self-contained",
-            "false",
-        ],
-    };
-}
-
 static DotnetPublishTarget CreatePublishTarget(
     FileInfo app,
     string name,
@@ -266,7 +238,7 @@ static DotnetPublishTarget CreatePublishTarget(
         Framework = "net10.0",
         RuntimeIdentifier = runtimeIdentifier,
         SelfContained = false,
-        Arguments = ["--no-restore", "--no-build",],
+        Arguments = ["--no-restore",],
     };
 }
 
