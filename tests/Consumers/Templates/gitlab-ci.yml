@@ -1,0 +1,27 @@
+variables:
+  GIT_DEPTH: "0"
+
+stages:
+  - build
+  - combine
+
+build:
+  stage: build
+  script:
+    - dotnet restore tests/Consumers/GitLab/GitLab.csproj --configfile tests/Consumers/NuGet.config -p:CandidateVersion=$CANDIDATE_VERSION
+    - dotnet run --project tests/Consumers/GitLab/GitLab.csproj -c Release --no-restore -p:CandidateVersion=$CANDIDATE_VERSION
+  artifacts:
+    access: developer
+    paths:
+      - tests/Consumers/GitLab/output/
+    expire_in: 1 day
+
+combine:
+  stage: combine
+  needs:
+    - job: build
+      artifacts: true
+  variables:
+    CONSUME_ARTIFACTS: "true"
+  script:
+    - dotnet run --project tests/Consumers/GitLab/GitLab.csproj -c Release --no-restore -p:CandidateVersion=$CANDIDATE_VERSION

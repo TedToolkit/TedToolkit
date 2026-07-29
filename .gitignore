@@ -11,5 +11,9 @@ temp
 output
 
 artifacts
+.nuget-packages/
+TestResults/
 
 Build/appsettings.json
+
+/.tedtoolkit-release-version.recovery

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "identifier": "EverythingButTheSink",
+      "revision": "6ccbdc3498be6ef3c3d14a91646bb6649c46f5c9",
+      "allowlistedFacts": [
+        "LocalBuild props are consumer-owned preparation extensions.",
+        "Cross-job publication consumes a copied typed artifact manifest.",
+        "GitLab Merge Request and Release operations remain provider-owned.",
+        "NuGet and Generic Package publication are independently switchable.",
+        "Text generation and Feishu notification adapters are optional consumer boundaries.",
+        "Multi-RID publish archives retain distinct logical names."
+      ]
+    }
+  ]
+}

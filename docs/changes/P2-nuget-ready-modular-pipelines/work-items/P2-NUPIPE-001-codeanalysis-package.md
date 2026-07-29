@@ -2,20 +2,19 @@
 
 ## 📌 Status
 
-Blocked — revised design baseline SHA approval required
+Completed
 
 ## 🚦 Delivery Priority
 
 - Priority: P2
 - Rationale: Establishes package assets, metadata, and consumer-verification patterns for public NuGet packages.
-- Blocking prerequisite: User approval of the committed ADR-002 design revision.
+- Blocking prerequisite: Resolved by User approval of the committed ADR-002 design revision.
 
 ## 🔗 Delivery Context
 
 - Parent change: [P2-nuget-ready-modular-pipelines](../README.md)
-- Approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`
-- Proposed revised design baseline: Pending commit and User approval.
-- Prerequisites: Accepted ADR-001, proposed ADR-002, and the revised architecture record.
+- Approved revised design baseline: `be0e9b19941251498807d91088eaa4f8ea4d17a6`
+- Prerequisites: Accepted ADR-001, accepted ADR-002, and the approved revised architecture record.
 - Applicable principles: None.
 
 ## 🧩 Explicit Governance Constraints
@@ -69,14 +68,22 @@ Non-goals: no new analyzer rules; no `TedToolkit.CodeAnalysis.Strict`; no modifi
 - Confidence: Low–Medium.
 - Assumptions: The complete copied Roslynator/StyleCop CodeFix provider set and each retained Roslyn-versioned variant have redistribution evidence, preserve valid NuGet/SDK selection, and have dependency closures that load in their isolated offline Roslyn hosts; the exact Sonar dependency has a stable restored path that the minimal adapter can activate. Any failure blocks 001 and requires revised User approval.
 - Exclusions: External NuGet publication and package signing.
-- Actual effort: Not completed.
-- Variance: Not completed.
+- Actual effort: One implementation and verification session on 2026-07-29; person-month accounting was not captured.
+- Variance: No material scope variance from the approved revised baseline.
 
 ## 📋 Completion Evidence
 
 Record the coordinated candidate version, upstream-license inventory, complete per-path/per-host preserved CodeFix inventory, NuGet/SDK Analyzer-selection evidence, isolated Roslyn-host matrix results, pack output, fixture restore/build, TUnit results, nupkg content inspection, and resolved package versions.
 
-Implementation audit on 2026-07-29 found that `SonarAnalyzer.CSharp` 10.23.0.137933 is licensed under the SONAR Source-Available License v1.0 rather than LGPL. The User selected ADR-002's exact external dependency plus minimal activation adapter, so TedToolkit will neither copy nor relicense the Sonar DLL. Implementation remains paused until the committed revised design baseline is explicitly approved by SHA.
+Implementation audit on 2026-07-29 found that `SonarAnalyzer.CSharp` 10.23.0.137933 is licensed under the SONAR Source-Available License v1.0 rather than LGPL. The User selected ADR-002's exact external dependency plus minimal activation adapter, so TedToolkit will neither copy nor relicense the Sonar DLL. The User approved revised design baseline `be0e9b19941251498807d91088eaa4f8ea4d17a6` on 2026-07-29.
+
+Implementation completed on 2026-07-29 with coordinated candidate version `2026.7.29`. `analyzer-assets.csv` records 71 copied Roslynator/StyleCop DLLs with package path and SHA-256; `analyzer-dependencies.csv` records the exact external Sonar dependency and audited DLL hash. Package inspection proved that every copied entry matches its recorded hash, no additional analyzer DLL exists, the nupkg contains no Sonar DLL, and the nuspec has exactly one dependency at `[10.23.0.137933]`. Separate Roslyn 3.8.0 and 4.7.0 host processes restored their complete dependency closures exclusively from a temporary local source and each instantiated every concrete provider from its four variant CodeFix assemblies plus the neutral StyleCop CodeFix assembly. A package-only consumer restored exclusively from temporary local candidate/upstream sources; the default SDK 10.0.302 selector chose roslyn4.7 without loading roslyn3.8, while `CompilerApiVersion=roslyn3.8` chose roslyn3.8 without loading roslyn4.7. The same consumer loaded the external Sonar analyzer exactly once, verified its audited SHA-256, honored S1135 `none`/`warning`/`error`, and failed closed after the restored Sonar DLL was removed. The repository source project separately proved that its explicit private producer references resolve Roslynator, StyleCop, Sonar, and the candidate analyzer project.
+
+Verification commands and results:
+
+- `dotnet run --project tests/TedToolkit.CodeAnalysis.PackageTests -c Release --no-restore` — passed, 7/7 tests.
+- `dotnet pack TedToolkit.CodeAnalysis/TedToolkit.CodeAnalysis.csproj -c Release --no-restore -p:PackageVersion=2026.7.29` — passed with no warnings.
+- `dotnet build TedToolkit.slnx -c Release --no-restore` — passed with 0 warnings and 0 errors.
 
 ## 🔄 Migration and Rollback
 

@@ -1,0 +1,29 @@
+name: Candidate package dry run
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Restore candidate-only TedToolkit packages
+        run: >-
+          dotnet restore tests/Consumers/GitHub/GitHub.csproj
+          --configfile tests/Consumers/NuGet.config
+          -p:CandidateVersion=${{ vars.CANDIDATE_VERSION }}
+      - name: Build package-only consumer
+        run: >-
+          dotnet build tests/Consumers/GitHub/GitHub.csproj
+          -c Release --no-restore
+          -p:CandidateVersion=${{ vars.CANDIDATE_VERSION }}

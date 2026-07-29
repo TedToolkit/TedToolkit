@@ -1,0 +1,16 @@
+TedToolkit.CodeAnalysis
+=======================
+
+Copyright (C) TedToolkit contributors.
+
+The TedToolkit-owned aggregate package content is licensed under the GNU
+Lesser General Public License version 3.0 only (LGPL-3.0-only).
+
+The complete license terms are available in the TedToolkit source repository:
+
+https://github.com/TedToolkit/TedToolkit/blob/development/COPYING.LESSER
+
+This license does not apply to the copied third-party analyzer binaries or to
+the separately restored SonarAnalyzer.CSharp dependency. Their licenses,
+versions, source locations, and included assets are identified in
+THIRD-PARTY-NOTICES.txt and the accompanying audit inventories.

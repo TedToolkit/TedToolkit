@@ -1,6 +1,6 @@
 # NuGet Release Contract
 
-> Status: Proposed revision. Last approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`. Proposed revised baseline: pending commit and User approval. This document forms the implementation contract together with the change README, ADR-001, ADR-002, and the architecture record.
+> Status: Approved revision. Approved revised design baseline: `be0e9b19941251498807d91088eaa4f8ea4d17a6`. This document forms the implementation contract together with the change README, ADR-001, ADR-002, and the architecture record.
 
 ## Package Set and Compatibility
 

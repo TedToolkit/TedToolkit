@@ -1,12 +1,12 @@
 # ModularPipelines Public Package Boundaries
 
-- Status: Proposed revision
+- Status: Approved revision
 - Owner: User
 - Scope and system boundary: the public NuGet packages for `TedToolkit.CodeAnalysis` and `TedToolkit.ModularPipelines*`, their consumer build hosts, and the GitHub/GitLab CI adapter layer.
 - Governing principles: None; the repository does not currently contain an approved `docs/principles/`.
 - Related ADR: [ADR-001](../adr/ADR-001-public-pipeline-package-boundaries.md)
-- Last approved revision: `0e01cced32f4d8e0946e54609880c617199a5b4c`
-- Proposed revision decision: [ADR-002](../adr/ADR-002-activate-sonar-through-an-external-package-dependency.md)
+- Approved revision: `be0e9b19941251498807d91088eaa4f8ea4d17a6`
+- Approved revision decision: [ADR-002](../adr/ADR-002-activate-sonar-through-an-external-package-dependency.md)
 
 ## Current Architecture
 

@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <PackageId>TedToolkit.ModularPipelines.Build</PackageId>
+    <Description>Platform-neutral .NET build, test, pack, resource, versioning, and artifact-manifest pipelines.</Description>
+    <Authors>TedToolkit contributors</Authors>
+    <PackageTags>build;pipeline;dotnet;nuget;manifest;ci</PackageTags>
+    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/TedToolkit/TedToolkit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TedToolkit/TedToolkit</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>Icon.jpg</PackageIcon>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(Configuration)' == 'Release'">true</ContinuousIntegrationBuild>
+    <PathMap>$(MSBuildProjectDirectory)=/_/TedToolkit.ModularPipelines.Build</PathMap>
+  </PropertyGroup>
+
+  <Import Project="..\props\CodeAnalysis.props" />
+
+  <ItemGroup>
+    <PackageReference Include="ModularPipelines.DotNet" />
+    <PackageReference Include="ModularPipelines.Git" />
+    <PackageReference Include="NuGet.Versioning" />
+    <ProjectReference Include="..\TedToolkit.CodeAnalysis\TedToolkit.CodeAnalysis.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\EditorConfig.base" />
+    <EmbeddedResource Include="Assets\CommitMessage.base.md" />
+    <EmbeddedResource Include="Assets\ChangeRequest.base.md" />
+    <None Update="README.md" Pack="true" PackagePath="/" />
+    <None Include="..\assets\Icon.jpg"
+          Pack="true"
+          PackagePath="/"
+          Link="Icon.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TedToolkit.ModularPipelines.Build.Tests" />
+    <InternalsVisibleTo Include="TedToolkit.ModularPipelines.Combine" />
+  </ItemGroup>
+
+</Project>

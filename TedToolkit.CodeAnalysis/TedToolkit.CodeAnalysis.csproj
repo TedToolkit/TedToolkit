@@ -1,24 +1,76 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <IsPackable>true</IsPackable>
-        <IsRoslynAnalyzer>true</IsRoslynAnalyzer>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <IncludeBuildOutput>false</IncludeBuildOutput>
-    </PropertyGroup>
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <IsRoslynAnalyzer>true</IsRoslynAnalyzer>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <PackageId>TedToolkit.CodeAnalysis</PackageId>
+    <Description>Audited Roslynator and StyleCop analyzers with exact external Sonar activation.</Description>
+    <Authors>TedToolkit contributors</Authors>
+    <PackageTags>analyzers;roslyn;code-analysis;code-fix;stylecop;sonar</PackageTags>
+    <PackageProjectUrl>https://github.com/TedToolkit/TedToolkit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TedToolkit/TedToolkit</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>Icon.jpg</PackageIcon>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Roslynator.Analyzers"/>
-      <PackageReference Include="Roslynator.CodeAnalysis.Analyzers"/>
-      <PackageReference Include="Roslynator.CodeFixes"/>
-      <PackageReference Include="Roslynator.Formatting.Analyzers"/>
-      <PackageReference Include="SonarAnalyzer.CSharp">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="StyleCop.Analyzers"/>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Roslynator.Analyzers"
+                      GeneratePathProperty="true"
+                      PrivateAssets="all" />
+    <PackageReference Include="Roslynator.CodeAnalysis.Analyzers"
+                      GeneratePathProperty="true"
+                      PrivateAssets="all" />
+    <PackageReference Include="Roslynator.CodeFixes"
+                      GeneratePathProperty="true"
+                      PrivateAssets="all" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers"
+                      GeneratePathProperty="true"
+                      PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp"
+                      VersionOverride="[10.23.0.137933]" />
+    <PackageReference Include="StyleCop.Analyzers.Unstable"
+                      GeneratePathProperty="true"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(PkgRoslynator_Analyzers)\analyzers\dotnet\**\*.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/" />
+    <None Include="$(PkgRoslynator_CodeAnalysis_Analyzers)\analyzers\dotnet\**\*.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/" />
+    <None Include="$(PkgRoslynator_CodeFixes)\analyzers\dotnet\**\*.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/" />
+    <None Include="$(PkgRoslynator_Formatting_Analyzers)\analyzers\dotnet\**\*.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/" />
+    <None Include="$(PkgStyleCop_Analyzers_Unstable)\analyzers\dotnet\**\*.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/" />
+    <None Update="README.md" Pack="true" PackagePath="/" />
+    <None Update="LICENSE.txt" Pack="true" PackagePath="/" />
+    <None Update="THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="/" />
+    <None Update="analyzer-assets.csv" Pack="true" PackagePath="/" />
+    <None Update="analyzer-dependencies.csv" Pack="true" PackagePath="/" />
+    <None Update="buildTransitive\TedToolkit.CodeAnalysis.props"
+          Pack="true"
+          PackagePath="/" />
+    <None Update="buildTransitive\TedToolkit.CodeAnalysis.targets"
+          Pack="true"
+          PackagePath="/" />
+    <None Include="..\assets\Icon.jpg"
+          Pack="true"
+          PackagePath="/"
+          Link="Icon.jpg" />
+  </ItemGroup>
 
 </Project>

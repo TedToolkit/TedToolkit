@@ -1,0 +1,43 @@
+TedToolkit.CodeAnalysis third-party notices
+============================================
+
+This package aggregates selected analyzer and code-fix binaries from the
+packages listed below. The exact included DLL path and SHA-256 for every copied
+binary is recorded in analyzer-assets.csv, which is shipped beside this file.
+Those binaries remain governed by their upstream licenses.
+
+Roslynator
+----------
+Packages and versions:
+- Roslynator.Analyzers 4.15.0
+- Roslynator.CodeAnalysis.Analyzers 4.15.0
+- Roslynator.CodeFixes 4.15.0
+- Roslynator.Formatting.Analyzers 4.15.0
+
+Included DLLs: every 4.15.0 row for the four packages above in
+analyzer-assets.csv, preserving the upstream roslyn3.8 and roslyn4.7 paths.
+License: Apache License 2.0 (Apache-2.0)
+Source: https://github.com/dotnet/roslynator
+License text: https://www.apache.org/licenses/LICENSE-2.0
+
+StyleCop Analyzers
+------------------
+Package and version: StyleCop.Analyzers.Unstable 1.2.0.556
+Included DLLs: every StyleCop.Analyzers.Unstable 1.2.0.556 row in
+analyzer-assets.csv, including localized resource assemblies.
+License: MIT
+Source: https://github.com/DotNetAnalyzers/StyleCopAnalyzers
+License text: https://opensource.org/license/mit
+
+SonarAnalyzer.CSharp external dependency
+----------------------------------------
+Package and exact version: SonarAnalyzer.CSharp [10.23.0.137933]
+Included DLLs: none. TedToolkit.CodeAnalysis does not redistribute the Sonar
+binary. NuGet restores the package separately, and the narrowly scoped
+buildTransitive adapter activates analyzers/SonarAnalyzer.CSharp.dll from that
+exact dependency.
+License: SONAR Source-Available License v1.0
+Source: https://github.com/SonarSource/sonar-dotnet
+License text: https://www.sonarsource.com/license/ssal-1-0-0/
+The audited dependency path and SHA-256 are recorded in
+analyzer-dependencies.csv, which is shipped beside this file.

@@ -1,43 +1,221 @@
+name: Build and release
+
 on:
   push:
-  workflow_dispatch:
   workflow_call:
+    secrets:
+      NUGET_API_KEY:
+        required: false
+  workflow_dispatch:
+    inputs:
+      recovery_action:
+        description: Build normally or recover one reserved release
+        type: choice
+        required: true
+        default: Build
+        options:
+          - Build
+          - FinalizeRelease
+          - AbandonPublication
+      version:
+        description: Reserved version for a recovery action
+        type: string
+        required: false
+      audit_reference:
+        description: Opaque non-secret audit reference for a recovery action
+        type: string
+        required: false
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
+
+concurrency:
+  group: TedToolkit-release-${{ github.repository }}
+  cancel-in-progress: false
+  queue: max
 
 jobs:
-  run-build-project:
+  validate:
+    if: >-
+      (github.event_name != 'workflow_dispatch' ||
+       inputs.recovery_action == 'Build') &&
+      github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
     steps:
-      - name: Checkout code
+      - name: Checkout complete read-only history
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
+          persist-credentials: false
           submodules: recursive
 
-      - name: Setup .NET
+      - name: Setup pinned .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0'
+          global-json-file: global.json
 
-      - name: Run Build Project
+      - name: Validate without remote actions
         env:
-          AI__ApiKey: ${{ secrets.AI__APIKEY }}
-          AI__EndPoint: ${{ secrets.AI__ENDPOINT }}
-          AI__ModelId: ${{ secrets.AI__MODELID }}
-          NuGet__ApiKey: ${{ secrets.NUGET__APIKEY }}
-          NuGet__Url: ${{ vars.NUGET__URL }}
-          NuGet__Source: ${{ vars.NUGET__SOURCE }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dotnet run --project Build/Build.csproj
+          TEDTOOLKIT_PIPELINE_PROFILE: Validate
+          TEDTOOLKIT_RUN_FORMAT: 'false'
+        run: dotnet run --project Build/Build.csproj -c Release
 
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Retain validation evidence
         if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: build-output
+          name: validation-output
           path: output/
           retention-days: 2
           if-no-files-found: ignore
+
+  build-pack:
+    if: >-
+      (github.event_name != 'workflow_dispatch' ||
+       inputs.recovery_action == 'Build') &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      release-enabled-at-build: ${{ steps.release-gate.outputs.enabled }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Capture publication gate
+        id: release-gate
+        run: echo "enabled=${{ vars.NUGET_RELEASE_ENABLED == 'true' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout complete read-only history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Setup pinned .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Resolve coordinated calendar version
+        id: version
+        run: dotnet run --project Build/Build.csproj -c Release -- resolve-version
+
+      - name: Build, test, and pack exact candidate bytes
+        env:
+          TEDTOOLKIT_PIPELINE_PROFILE: Pack
+          TEDTOOLKIT_PACKAGE_VERSION: ${{ steps.version.outputs.version }}
+          TEDTOOLKIT_RUN_FORMAT: 'true'
+        run: dotnet run --project Build/Build.csproj -c Release
+
+      - name: Upload immutable build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: output/
+          retention-days: 7
+          if-no-files-found: error
+
+  publish:
+    needs: build-pack
+    if: >-
+      needs.build-pack.result == 'success' &&
+      needs.build-pack.outputs.release-enabled-at-build == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout complete authenticated history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup pinned .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Download exact build output
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: output
+
+      - name: Publish packages, immutable evidence, and GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          TEDTOOLKIT_PIPELINE_INPUT_MODE: ConsumeArtifacts
+          TEDTOOLKIT_PIPELINE_PROFILE: Publish
+          TEDTOOLKIT_ARTIFACT_MANIFEST: output/pipeline-artifacts.v1.json
+          TEDTOOLKIT_PACKAGE_VERSION: ${{ needs.build-pack.outputs.version }}
+          TEDTOOLKIT_PUSH_NUGET: 'true'
+          TEDTOOLKIT_NUGET_SOURCE: ${{ vars.NUGET_SOURCE }}
+          TEDTOOLKIT_NUGET_SYMBOL_SOURCE: ${{ vars.NUGET_SYMBOL_SOURCE }}
+          TEDTOOLKIT_NUGET_CREDENTIAL_REFERENCE: NUGET_API_KEY
+          TEDTOOLKIT_USE_GIT_TAG_CHECKPOINT: 'true'
+          TEDTOOLKIT_REPOSITORY_PROVIDER: GitHub
+          TEDTOOLKIT_GITHUB_AUTH_MODE: ActionsToken
+          TEDTOOLKIT_PUBLISH_ARTIFACTS: 'true'
+          TEDTOOLKIT_CREATE_RELEASE: 'true'
+          TEDTOOLKIT_RELEASE_TAG: ${{ needs.build-pack.outputs.version }}
+          TEDTOOLKIT_RELEASE_TITLE: TedToolkit ${{ needs.build-pack.outputs.version }}
+          TEDTOOLKIT_RELEASE_BODY: Coordinated TedToolkit NuGet release.
+        run: dotnet run --project Build/Build.csproj -c Release
+
+  abandon-publication:
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      inputs.recovery_action == 'AbandonPublication'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout complete authenticated history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup pinned .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Audit and abandon pre-success publication
+        env:
+          TEDTOOLKIT_RECOVERY_ACTION: AbandonPublication
+          TEDTOOLKIT_RECOVERY_VERSION: ${{ inputs.version }}
+          TEDTOOLKIT_AUDIT_REFERENCE: ${{ inputs.audit_reference }}
+        run: dotnet run --project Build/Build.csproj -c Release -- recover-release
+
+  finalize-release:
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      inputs.recovery_action == 'FinalizeRelease'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout complete authenticated history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup pinned .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Audit and finalize package-success Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TEDTOOLKIT_RECOVERY_ACTION: FinalizeRelease
+          TEDTOOLKIT_RECOVERY_VERSION: ${{ inputs.version }}
+          TEDTOOLKIT_AUDIT_REFERENCE: ${{ inputs.audit_reference }}
+          TEDTOOLKIT_GITHUB_AUTH_MODE: ActionsToken
+        run: dotnet run --project Build/Build.csproj -c Release -- recover-release

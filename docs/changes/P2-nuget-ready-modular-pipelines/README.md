@@ -2,12 +2,11 @@
 
 ## 📌 Status
 
-Proposed revision — the User selected external Sonar dependency activation on 2026-07-29; the committed revised baseline still requires explicit SHA approval before implementation resumes.
+Approved revision — the User approved the external Sonar dependency activation baseline at `be0e9b19941251498807d91088eaa4f8ea4d17a6` on 2026-07-29.
 
 - Change owner: User
 - Approval owner: User
-- Last approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`
-- Proposed revised design baseline: Pending commit and User approval.
+- Approved revised design baseline: `be0e9b19941251498807d91088eaa4f8ea4d17a6`
 
 ## 🚦 Change Priority
 
@@ -34,12 +33,12 @@ Compatibility: The libraries do not yet have a stable public NuGet contract, so 
 ## 🧩 Governance and Decisions
 
 - Applicable principles and revisions: None; the repository contains no approved principle documents.
-- Related ADRs and status: [ADR-001](../../adr/ADR-001-public-pipeline-package-boundaries.md) (Accepted) and [ADR-002](../../adr/ADR-002-activate-sonar-through-an-external-package-dependency.md) (Proposed).
-- Related architecture record and revision: [ModularPipelines Public Package Boundaries](../../architecture/modular-pipelines-packaging.md) (Proposed revision; last approved at `0e01cced32f4d8e0946e54609880c617199a5b4c`).
+- Related ADRs and status: [ADR-001](../../adr/ADR-001-public-pipeline-package-boundaries.md) (Accepted) and [ADR-002](../../adr/ADR-002-activate-sonar-through-an-external-package-dependency.md) (Accepted).
+- Related architecture record and revision: [ModularPipelines Public Package Boundaries](../../architecture/modular-pipelines-packaging.md) (approved revision `be0e9b19941251498807d91088eaa4f8ea4d17a6`).
 - Approval baseline: Commit all 12 documents in this design set (ADR, architecture record, README, blueprint, release contract, test strategy, and six work items) together as the proposed baseline. User approval must cite that immutable commit SHA. A later status-only administrative commit may record `Approved design revision: <sha>` in this section; implementation remains governed by the cited earlier revision, so the approval record never needs to approve itself.
 - Approved design revision: `0e01cced32f4d8e0946e54609880c617199a5b4c`.
 - Revised approval baseline: Commit ADR-002 and every affected design document together, then obtain explicit User approval citing that immutable commit SHA. A later status-only administrative commit records acceptance without changing the approved behavior.
-- Proposed revised design revision: Pending commit and User approval.
+- Approved revised design revision: `be0e9b19941251498807d91088eaa4f8ea4d17a6`.
 - Reapproval triggers: Changes to public APIs, package list, target frameworks, version strategy, manifest schema, GitLab URL security, provider technology, or behavior cases.
 
 ## 🧭 Planned Approach
@@ -93,14 +92,14 @@ The implementation directories, project references, public/internal types, resou
 | PB-02 | The current checkout's Build configuration contains a non-empty credential-like AI value; its value has not been copied into these documents | P2-NUPIPE-003 host migration, P2-NUPIPE-006 CI evidence, and release readiness | User rotates it; the migrated workflow removes AI secrets, and examples, fixtures, packages, and logs permit only empty values or environment placeholders | Open |
 | PB-03 | GitHub Actions test-repository and GitLab test-project/runner access is not yet recorded | P2-NUPIPE-006 BC-006-8 and release readiness only | User provides both environments before real CI evidence is collected; local or mocked tests do not replace this gate | Open |
 | PB-04 | The current CodeAnalysis graph explicitly references `Roslynator.CodeFixes`, and several selected analyzer packages also carry their own code-fix DLLs in Roslyn-versioned asset subtrees | P2-NUPIPE-001 scope and IDE compatibility approval | Resolved by User decision: preserve the complete current code-fix provider set and its audited host-compatible variants, retaining distinct upstream Roslyn-versioned paths; any asset or variant that fails license, dependency-closure, selection, or isolated-host loading blocks 001 and requires revised User approval rather than flattening or silent removal | Resolved |
-| PB-05 | The CodeAnalysis dependency-activation revision is not yet committed and SHA-approved | P2-NUPIPE-001 | Commit ADR-002 and the affected design documents, then obtain explicit User approval citing that immutable SHA | Open |
+| PB-05 | The CodeAnalysis dependency-activation revision is approved at `be0e9b19941251498807d91088eaa4f8ea4d17a6` | P2-NUPIPE-001 | Resolved by explicit User approval | Resolved |
 
 ## 🗺️ Delivery Map
 
 | ID | Work package | Outcome | Priority and rationale | Estimate | Prerequisites | Status | Document |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| P2-NUPIPE-001 | CodeAnalysis package assets | Audited copied assets plus exact external Sonar activation are independently consumable | P2 — independently enables analyzer publication | 0.18–0.30 person-months | Revised approval baseline | Blocked — revised baseline SHA approval required | `work-items/P2-NUPIPE-001-codeanalysis-package.md` |
-| P2-NUPIPE-002 | Build | Shared dependency baseline, resources, neutral descriptions, safe commands, pure calendar versioning, recoverable temporary MSBuild stamping, explicit pack/publish archives, failure manifest, and platform-neutral build | P2 — foundation for later composition | 0.48–0.75 person-months | ADR-001 | Planned | `work-items/P2-NUPIPE-002-core-and-build.md` |
+| P2-NUPIPE-001 | CodeAnalysis package assets | Audited copied assets plus exact external Sonar activation are independently consumable | P2 — independently enables analyzer publication | 0.18–0.30 person-months | Revised approval baseline | Completed | `work-items/P2-NUPIPE-001-codeanalysis-package.md` |
+| P2-NUPIPE-002 | Build | Shared dependency baseline, resources, neutral descriptions, safe commands, pure calendar versioning, recoverable temporary MSBuild stamping, explicit pack/publish archives, failure manifest, and platform-neutral build | P2 — foundation for later composition | 0.48–0.75 person-months | ADR-001 | Completed | `work-items/P2-NUPIPE-002-core-and-build.md` |
 | P2-NUPIPE-003 | Combine and repository Build-host migration | Two input modes, explicit profiles/actions, neutral package checkpoints/events/Release-finalization contract, direct host ProjectReferences, coordinated calendar/progress/tag workflow with provider mutation still gated off, least-privilege artifact/push jobs, and compatibility gates | P2 — consumer entry point and first real migration | 0.75–1.20 person-months | 001, 002 | Planned | `work-items/P2-NUPIPE-003-combine-profiles.md` |
 | P2-NUPIPE-004 | Combine GitHub provider | Client evidence, approved supplemental ADR, and idempotent GitHub automation with resumable Release-asset and Release-finalization ordering | P2 — provides the approved corrected GitHub release outcome | 0.30–0.50 person-months | 002, 003 | Planned | `work-items/P2-NUPIPE-004-github-adapter.md` |
 | P2-NUPIPE-005 | Combine GitLab provider | Client evidence, approved supplemental ADR, arbitrary GitLab URLs, MR/Release, provider-neutral Release finalization, and idempotent Generic Package support | P2 — satisfies cross-platform and self-hosted requirements | 0.35–0.55 person-months | 002, 003 | Planned | `work-items/P2-NUPIPE-005-gitlab-adapter.md` |

@@ -17,5 +17,20 @@
     <Build Project="false" />
   </Project>
   <Project Path="TedToolkit.CodeAnalysis/TedToolkit.CodeAnalysis.csproj" />
+  <Project Path="TedToolkit.ModularPipelines.Build/TedToolkit.ModularPipelines.Build.csproj" />
+  <Project Path="TedToolkit.ModularPipelines.Combine/TedToolkit.ModularPipelines.Combine.csproj" />
   <Project Path="TedToolkit.ModularPipelines/TedToolkit.ModularPipelines.csproj" />
+  <Folder Name="/tests/">
+    <Project Path="tests/CodeFixHosts/Roslyn38Dependencies/Roslyn38Dependencies.csproj" />
+    <Project Path="tests/CodeFixHosts/Roslyn47Dependencies/Roslyn47Dependencies.csproj" />
+    <Project Path="tests/TedToolkit.CodeAnalysis.PackageTests/TedToolkit.CodeAnalysis.PackageTests.csproj" />
+    <Project Path="tests/TedToolkit.ModularPipelines.Build.Tests/TedToolkit.ModularPipelines.Build.Tests.csproj" />
+    <Project Path="tests/TedToolkit.ModularPipelines.Combine.Tests/TedToolkit.ModularPipelines.Combine.Tests.csproj" />
+    <Project Path="tests/TedToolkit.ModularPipelines.Combine.GitHub.Tests/TedToolkit.ModularPipelines.Combine.GitHub.Tests.csproj" />
+    <Project Path="tests/TedToolkit.ModularPipelines.Combine.GitLab.Tests/TedToolkit.ModularPipelines.Combine.GitLab.Tests.csproj" />
+    <Project Path="tests/TedToolkit.ModularPipelines.HostCompatibility.Tests/TedToolkit.ModularPipelines.HostCompatibility.Tests.csproj">
+      <Build Project="false" />
+    </Project>
+    <Project Path="tests/ReleaseContract.Tests/ReleaseContract.Tests.csproj" />
+  </Folder>
 </Solution>

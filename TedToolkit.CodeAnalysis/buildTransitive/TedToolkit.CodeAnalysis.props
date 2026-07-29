@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <TedToolkitCodeAnalysisSonarVersion>10.23.0.137933</TedToolkitCodeAnalysisSonarVersion>
+    <TedToolkitCodeAnalysisPackageRoot>$([MSBuild]::EnsureTrailingSlash('$(NuGetPackageRoot)'))</TedToolkitCodeAnalysisPackageRoot>
+    <TedToolkitCodeAnalysisSonarAnalyzerPath>$([System.IO.Path]::GetFullPath('$(TedToolkitCodeAnalysisPackageRoot)sonaranalyzer.csharp/$(TedToolkitCodeAnalysisSonarVersion)/analyzers/SonarAnalyzer.CSharp.dll'))</TedToolkitCodeAnalysisSonarAnalyzerPath>
+  </PropertyGroup>
+</Project>

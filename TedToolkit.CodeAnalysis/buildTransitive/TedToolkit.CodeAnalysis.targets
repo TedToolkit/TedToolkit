@@ -1,0 +1,11 @@
+<Project>
+  <Target Name="TedToolkitCodeAnalysisValidateSonarAnalyzer"
+          BeforeTargets="CoreCompile">
+    <Error Condition="!Exists('$(TedToolkitCodeAnalysisSonarAnalyzerPath)')"
+           Text="TedToolkit.CodeAnalysis requires SonarAnalyzer.CSharp 10.23.0.137933 at '$(TedToolkitCodeAnalysisSonarAnalyzerPath)'." />
+    <ItemGroup>
+      <Analyzer Remove="$(TedToolkitCodeAnalysisSonarAnalyzerPath)" />
+      <Analyzer Include="$(TedToolkitCodeAnalysisSonarAnalyzerPath)" />
+    </ItemGroup>
+  </Target>
+</Project>

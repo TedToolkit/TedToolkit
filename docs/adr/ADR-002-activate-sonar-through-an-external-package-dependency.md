@@ -1,6 +1,6 @@
 # ADR-002: Activate Sonar through an External Package Dependency
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-07-29
 - Decision owner: User
 - Decision scope: The first public `TedToolkit.CodeAnalysis` package and its automatic activation of `SonarAnalyzer.CSharp`.

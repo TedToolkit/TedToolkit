@@ -1,6 +1,6 @@
 # Test Strategy and Traceability
 
-> Status: Proposed revision. Last approved design baseline: `0e01cced32f4d8e0946e54609880c617199a5b4c`. Proposed revised baseline: pending commit and User approval. Every test project uses TUnit as an executable project (`OutputType=Exe`). Tests run through `dotnet run --configuration Release`; each test method has an English XML `summary`, and every assertion is awaited.
+> Status: Approved revision. Approved revised design baseline: `be0e9b19941251498807d91088eaa4f8ea4d17a6`. Every test project uses TUnit as an executable project (`OutputType=Exe`). Tests run through `dotnet run --configuration Release`; each test method has a Chinese XML `summary`, and every assertion is awaited.
 
 ## Test Projects and Responsibilities
 

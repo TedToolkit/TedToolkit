@@ -1,0 +1,2 @@
+PackageId,PackageVersion,VersionRange,License,PackagePath,Sha256,Disposition
+SonarAnalyzer.CSharp,10.23.0.137933,[10.23.0.137933],Sonar-Source-Available-1.0,analyzers/SonarAnalyzer.CSharp.dll,5a6476ae9a310021c9a5fa38160bd0d6297211d74613253f8b4d83ce56258289,ExternalDependency

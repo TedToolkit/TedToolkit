@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "repository": "TedToolkit/TedToolkit",
+  "capturedAtUtc": "2026-07-29T13:23:38Z",
+  "sourceRevision": "be0e9b19941251498807d91088eaa4f8ea4d17a6",
+  "authoritativeSource": "GitHub REST API",
+  "releasePagesRead": 1,
+  "tagPagesRead": 1,
+  "releaseCount": 0,
+  "tagCount": 0,
+  "acceptedCount": 0,
+  "ignoredCount": 0,
+  "localTagCount": 0,
+  "completeLocalTagVerification": true,
+  "baselinePath": "Build/release-history.v1.json",
+  "baselineSha256": "b448ff69287035c7974e6f78db1057c83138089d33a63e251865038f2f33f1b7"
+}

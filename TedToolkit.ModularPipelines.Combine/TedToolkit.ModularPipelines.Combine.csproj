@@ -1,0 +1,74 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <PackageId>TedToolkit.ModularPipelines.Combine</PackageId>
+    <Description>Provider-neutral composition, artifact consumption, publication, and event contracts for ModularPipelines.</Description>
+    <Authors>TedToolkit contributors</Authors>
+    <PackageTags>pipeline;ci;github;gitlab;nuget;release</PackageTags>
+    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/TedToolkit/TedToolkit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TedToolkit/TedToolkit</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>Icon.jpg</PackageIcon>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(Configuration)' == 'Release'">true</ContinuousIntegrationBuild>
+    <PathMap>$(MSBuildProjectDirectory)=/_/TedToolkit.ModularPipelines.Combine</PathMap>
+    <ApprovedSdkVersion>10.0.302</ApprovedSdkVersion>
+  </PropertyGroup>
+
+  <Import Project="..\props\CodeAnalysis.props" />
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <ProjectReference Include="..\TedToolkit.ModularPipelines.Build\TedToolkit.ModularPipelines.Build.csproj" />
+    <ProjectReference Include="..\TedToolkit.CodeAnalysis\TedToolkit.CodeAnalysis.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md" Pack="true" PackagePath="/" />
+    <None Include="..\assets\Icon.jpg"
+          Pack="true"
+          PackagePath="/"
+          Link="Icon.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TedToolkit.ModularPipelines.Combine.Tests" />
+    <InternalsVisibleTo Include="TedToolkit.ModularPipelines.Combine.GitHub.Tests" />
+    <InternalsVisibleTo Include="TedToolkit.ModularPipelines.Combine.GitLab.Tests" />
+    <InternalsVisibleTo Include="TedToolkit.ReleaseContract.Tests" />
+  </ItemGroup>
+
+  <Target Name="PinBuildPackageDependency"
+          AfterTargets="_GetProjectReferenceVersions"
+          BeforeTargets="GenerateNuspec"
+          Condition="'$(IsPackable)' == 'true'">
+    <Error Condition="'$(NETCoreSdkVersion)' != '$(ApprovedSdkVersion)'"
+           Text="TedToolkit.ModularPipelines.Combine packing requires SDK $(ApprovedSdkVersion); found $(NETCoreSdkVersion)." />
+    <ItemGroup>
+      <_TedToolkitBuildDependency Include="@(_ProjectReferencesWithVersions)"
+                                  Condition="'%(Filename)' == 'TedToolkit.ModularPipelines.Build'" />
+    </ItemGroup>
+    <Error Condition="'@(_TedToolkitBuildDependency)' == ''"
+           Text="Exactly one TedToolkit.ModularPipelines.Build project dependency is required for packing." />
+    <Error Condition="'@(_TedToolkitBuildDependency->Count())' != '1'"
+           Text="Exactly one TedToolkit.ModularPipelines.Build project dependency is required for packing." />
+    <ItemGroup>
+      <_ProjectReferencesWithVersions Update="@(_ProjectReferencesWithVersions)"
+                                      Condition="'%(Filename)' == 'TedToolkit.ModularPipelines.Build'">
+        <ProjectVersion>[$(PackageVersion)]</ProjectVersion>
+      </_ProjectReferencesWithVersions>
+    </ItemGroup>
+  </Target>
+
+</Project>

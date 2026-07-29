@@ -2,7 +2,7 @@
 
 ## 📌 Status
 
-Approved
+Completed
 
 ## 🚦 Delivery Priority
 
@@ -94,12 +94,26 @@ Non-goals: no PR/MR, Release, platform authentication, or notification creation;
 - Confidence: Low–Medium.
 - Assumptions: At least one candidate ModularPipelines version supports the intended public stage extension; the change is revised if the PoC disproves the stage model. The estimate includes cross-platform atomic recovery and exact compiled-metadata mapping tests.
 - Exclusions: Platform adapters, final publication, and CI templates.
-- Actual effort: Not completed.
-- Variance: Not completed.
+- Actual effort: Completed on 2026-07-29.
+- Variance: Within the approved implementation scope.
 
 ## 📋 Completion Evidence
 
 Record calendar-version policy cases, temporary and restored repository-file hashes, interrupted-recovery cases, compiled assembly/file/informational versions, build/pack output for each package, manifest round-trip results, unit tests, and public-API/dependency checks.
+
+Implementation completed on 2026-07-29. The Build-only suite passes 55 tests,
+including all five active ModularPipelines graphs, pure calendar-version cases,
+matching/conflicting interrupted recovery, cancellation and restoration failure,
+exact-byte restoration, real SDK compilation/packing with assembly/file/
+informational/nuspec agreement, malformed package rejection, strict manifest
+round-trip and Git-revision validation, resource composition, command-shape,
+TRX, format-scope, description-failure, input-safety, and package-boundary
+checks. Release builds of both the library and tests complete with zero warnings
+and zero errors. A coordinated `2026.7.29.1` package inspection confirmed the
+net10.0 library, XML documentation, README, icon, symbol package, repository
+metadata, embedded resource assembly, and only the approved platform-neutral
+dependency set. The public/API dependency scan found no provider, model,
+clipboard, or notification SDK type.
 
 ## 🔄 Migration and Rollback
 

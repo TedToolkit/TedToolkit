@@ -11,6 +11,10 @@
   <ItemGroup>
     <EmbeddedResource Include="..\.editorconfig" Visible="false"/>
     <EmbeddedResource Include="..\PromptLibrary\CommitMessage.md" Visible="false"/>
+    <ProjectReference Include="..\TedToolkit.CodeAnalysis\TedToolkit.CodeAnalysis.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
     <PackageReference Include="GeminiDotnet.Extensions.AI"/>
     <PackageReference Include="ModularPipelines.DotNet"/>
     <PackageReference Include="ModularPipelines.Git"/>
