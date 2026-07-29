@@ -78,12 +78,12 @@ After P2-NUPIPE-003, the actual repository Build host and its GitHub workflow ar
 - Confidence: Low–Medium.
 - Assumptions: Candidate packages restore through source mapping, the external baseline is accessible, CI artifact copying preserves content, P2-NUPIPE-003 supplies User-accepted immutable release-history evidence, and User can provide test-project/runner access with permission to execute workflows but no permission or enabled switch for remote mutation.
 - Exclusions: NuGet.org permissions, remote resource creation, production CI rollout, modification of EverythingButTheSink, and final release approval.
-- Actual effort: Local implementation and verification completed on 2026-07-29; external CI execution remains pending.
+- Actual effort: Local implementation, package-only verification, and the real side-effect-free GitHub Actions run completed on 2026-07-29; the real GitLab CI run remains pending.
 - Variance: No GitLab test project/runner is connected to this workspace, so the required real side-effect-free GitLab CI link cannot yet be recorded.
 
 ## 📋 Completion Evidence
 
-Local evidence uses coordinated candidate `2026.7.29.3`: all three package-only fixtures restored and built strictly, Build-only and GitHub Validate ran, GitLab RunBuild and cross-process ConsumeArtifacts ran, and ReleaseContract validated package contents, versions, symbols, exact dependencies, provenance, workflow/templates, and the accepted baseline. The real side-effect-free GitHub Actions run [30461479405](https://github.com/TedToolkit/TedToolkit/actions/runs/30461479405) passed on Ubuntu with publication/recovery jobs skipped. A real GitLab run link remains required before this item can become Completed.
+Local evidence uses coordinated candidate `2026.7.29.3`: all four package-only hosts restored and built strictly; the basic provider consumers ran Validate and cross-process ConsumeArtifacts; the EverythingButTheSink-derived host ran Build/TUnit/Pack, two RID publishes, copied-manifest GitLab Message/Publish, fake NuGet/MR/Generic Package/Release boundaries, optional neutral adapters, and exact event/extension ordering. ReleaseContract validated package contents, versions, symbols, exact dependencies, provenance, workflow/templates, and the accepted baseline. The real side-effect-free GitHub Actions run [30464312313](https://github.com/TedToolkit/TedToolkit/actions/runs/30464312313) passed at `dc9a3660a006188aca4e40bb4d5fecdc7367631f` on Ubuntu: it generated candidate `2026.7.29`, restored and strictly built every package-only host from the generated `.nupkg` files, completed the full derived compatibility fixture, and skipped publication/recovery jobs. A real GitLab run link remains required before this item can become Completed.
 
 ## 🔄 Migration and Rollback
 
@@ -94,4 +94,4 @@ Consumer fixtures and CI examples are additive test/documentation assets and can
 | Item | Impact | Owner or next decision |
 | --- | --- | --- |
 | Test CI projects differ from production repositories | Production-only policy or permission defects remain possible | Require side-effect-free GitHub and GitLab CI dry runs and document that production rollout remains a consumer responsibility |
-| A GitHub Actions test repository or GitLab test project/runner is unavailable | The package can pass local tests but cannot satisfy release readiness | User provides both execution environments; retain the release gate as blocked and do not substitute mocked evidence |
+| A GitLab test project/runner is unavailable | The package and GitHub Actions path pass, but BC-006-8 and release readiness remain incomplete | User provides the GitLab execution environment; retain the release gate as blocked and do not substitute mocked evidence |
