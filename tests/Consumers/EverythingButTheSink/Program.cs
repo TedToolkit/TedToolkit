@@ -294,6 +294,9 @@ static async Task ConsumeAsync(DirectoryInfo producerRoot)
     var fakeDotnetLog = Path.Combine(
         boundaryDirectory.FullName,
         "fake-dotnet.jsonl");
+    var fakeGitLabLog = Path.Combine(
+        boundaryDirectory.FullName,
+        "fake-gitlab.log");
     InstallFakeDotnet();
     Environment.SetEnvironmentVariable(
         "PATH",
@@ -303,6 +306,9 @@ static async Task ConsumeAsync(DirectoryInfo producerRoot)
     Environment.SetEnvironmentVariable(
         "COMPATIBILITY_FAKE_DOTNET_LOG",
         fakeDotnetLog);
+    Environment.SetEnvironmentVariable(
+        "COMPATIBILITY_FAKE_GITLAB_LOG",
+        fakeGitLabLog);
     Environment.SetEnvironmentVariable("CI_JOB_TOKEN", "synthetic-token");
     Environment.SetEnvironmentVariable("GITLAB_CI", "true");
     Environment.SetEnvironmentVariable(
@@ -389,6 +395,9 @@ static async Task ConsumeAsync(DirectoryInfo producerRoot)
         Environment.SetEnvironmentVariable("PATH", originalPath);
         Environment.SetEnvironmentVariable(
             "COMPATIBILITY_FAKE_DOTNET_LOG",
+            null);
+        Environment.SetEnvironmentVariable(
+            "COMPATIBILITY_FAKE_GITLAB_LOG",
             null);
         Environment.SetEnvironmentVariable("CI_JOB_TOKEN", null);
     }
@@ -741,11 +750,34 @@ internal sealed class FakeGitLabServer : IAsyncDisposable
                     parts[1].Trim(),
                     System.Globalization.CultureInfo.InvariantCulture))
                 .SingleOrDefault();
-            await DrainAsync(stream, contentLength, cancellationToken);
+            var chunked = lines.Skip(1).Any(line =>
+                line.Equals(
+                    "Transfer-Encoding: chunked",
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (chunked)
+            {
+                await DrainChunkedAsync(stream, cancellationToken);
+            }
+            else
+            {
+                await DrainAsync(stream, contentLength, cancellationToken);
+            }
 
             lock (_requests)
             {
                 _requests.Add($"{method} {path}");
+            }
+
+            var logPath = Environment.GetEnvironmentVariable(
+                "COMPATIBILITY_FAKE_GITLAB_LOG");
+
+            if (logPath is not null)
+            {
+                await File.AppendAllTextAsync(
+                    logPath,
+                    $"{method} {path}\n",
+                    cancellationToken);
             }
 
             var (status, body) = CreateResponse(method, path);
@@ -890,5 +922,62 @@ internal sealed class FakeGitLabServer : IAsyncDisposable
 
             remaining -= read;
         }
+    }
+
+    private static async Task DrainChunkedAsync(
+        NetworkStream stream,
+        CancellationToken cancellationToken)
+    {
+        while (true)
+        {
+            var sizeLine = await ReadLineAsync(stream, cancellationToken);
+            var separator = sizeLine.IndexOf(';', StringComparison.Ordinal);
+            var sizeText = separator < 0
+                ? sizeLine
+                : sizeLine[..separator];
+            var size = int.Parse(
+                sizeText,
+                System.Globalization.NumberStyles.HexNumber,
+                System.Globalization.CultureInfo.InvariantCulture);
+
+            if (size == 0)
+            {
+                _ = await ReadLineAsync(stream, cancellationToken);
+                return;
+            }
+
+            await DrainAsync(stream, size, cancellationToken);
+            _ = await ReadLineAsync(stream, cancellationToken);
+        }
+    }
+
+    private static async Task<string> ReadLineAsync(
+        NetworkStream stream,
+        CancellationToken cancellationToken)
+    {
+        var bytes = new List<byte>();
+
+        while (bytes.Count < 8 * 1024)
+        {
+            var buffer = new byte[1];
+            var read = await stream.ReadAsync(buffer, cancellationToken);
+
+            if (read == 0)
+            {
+                throw new EndOfStreamException(
+                    "The fake GitLab chunked body ended early.");
+            }
+
+            if (buffer[0] == '\n')
+            {
+                return Encoding.ASCII.GetString(bytes.ToArray())
+                    .TrimEnd('\r');
+            }
+
+            bytes.Add(buffer[0]);
+        }
+
+        throw new InvalidDataException(
+            "The fake GitLab chunk header is too long.");
     }
 }
