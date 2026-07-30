@@ -167,12 +167,21 @@ static void ValidateTemplatesAndWorkflow(DirectoryInfo root)
         "tests",
         "Consumers",
         "Templates");
-    var github = File.ReadAllText(Path.Combine(
-        templates,
-        "github-actions.yml"));
-    var gitlab = File.ReadAllText(Path.Combine(
-        templates,
-        "gitlab-ci.yml"));
+    var githubPath = Path.Combine(templates, "github-actions.yml");
+    var gitlabPath = Path.Combine(templates, "gitlab-ci.yml");
+    var github = File.ReadAllText(githubPath);
+    var gitlab = File.ReadAllText(gitlabPath);
+    var githubHash = Convert.ToHexStringLower(
+        SHA256.HashData(File.ReadAllBytes(githubPath)));
+    var gitlabHash = Convert.ToHexStringLower(
+        SHA256.HashData(File.ReadAllBytes(gitlabPath)));
+    var evidence = File.ReadAllText(Path.Combine(
+        root.FullName,
+        "docs",
+        "changes",
+        "P2-nuget-ready-modular-pipelines",
+        "evidence",
+        "consumer-verification-2026-07-29.md"));
     Require(
         github.Contains("fetch-depth: 0", StringComparison.Ordinal)
         && github.Contains(
@@ -192,7 +201,12 @@ static void ValidateTemplatesAndWorkflow(DirectoryInfo root)
             StringComparison.Ordinal)
         > gitlab.IndexOf("combine:", StringComparison.Ordinal)
         && !gitlab.Contains("TOKEN", StringComparison.OrdinalIgnoreCase)
-        && !gitlab.Contains("https://", StringComparison.OrdinalIgnoreCase),
+        && !gitlab.Contains("https://", StringComparison.OrdinalIgnoreCase)
+        && evidence.Contains(githubHash, StringComparison.Ordinal)
+        && evidence.Contains(gitlabHash, StringComparison.Ordinal)
+        && evidence.Contains(
+            "User-approved GitLab verification substitution: 2026-07-30",
+            StringComparison.Ordinal),
         "A side-effect-free CI template is invalid.");
 
     var workflow = File.ReadAllText(Path.Combine(
