@@ -650,7 +650,7 @@ internal sealed class FakeGitLabServer : IAsyncDisposable
             CompatibilityAssert.Require(
                 _requests.Count(request =>
                     request.Equals(
-                        "PUT /api/v2/package",
+                        "PUT /api/v2/package/",
                         StringComparison.Ordinal)) is 2 or 4,
                 "The fake NuGet boundary did not receive both package operations.");
         }
@@ -783,7 +783,7 @@ internal sealed class FakeGitLabServer : IAsyncDisposable
         }
 
         if (method == "PUT"
-            && path.Equals("/api/v2/package", StringComparison.Ordinal))
+            && path.Equals("/api/v2/package/", StringComparison.Ordinal))
         {
             return ("201 Created", "{}");
         }
