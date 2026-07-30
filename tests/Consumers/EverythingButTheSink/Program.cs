@@ -19,18 +19,6 @@ using TedToolkit.ModularPipelines.Combine.Events;
 using TedToolkit.ModularPipelines.Combine.Execution;
 using TedToolkit.ModularPipelines.Combine.Modules;
 
-if (args.FirstOrDefault() == "nuget")
-{
-    var logPath = Environment.GetEnvironmentVariable(
-        "COMPATIBILITY_FAKE_DOTNET_LOG")
-        ?? throw new InvalidOperationException(
-            "The fake dotnet log path is unavailable.");
-    await File.AppendAllTextAsync(
-        logPath,
-        JsonSerializer.Serialize(args) + "\n");
-    return;
-}
-
 var mode = args.SingleOrDefault()
     ?? throw new InvalidDataException("Specify produce or consume.");
 var fixtureRoot = new DirectoryInfo(Path.GetFullPath(
@@ -286,26 +274,20 @@ static async Task ConsumeAsync(DirectoryInfo producerRoot)
 
     await using var server = new FakeGitLabServer();
     await server.StartAsync();
-    var originalPath = Environment.GetEnvironmentVariable("PATH");
+    var originalJobToken = Environment.GetEnvironmentVariable("CI_JOB_TOKEN");
+    var originalGitLabCi = Environment.GetEnvironmentVariable("GITLAB_CI");
+    var originalRefName = Environment.GetEnvironmentVariable(
+        "CI_COMMIT_REF_NAME");
+    var originalCommitSha = Environment.GetEnvironmentVariable(
+        "CI_COMMIT_SHA");
     var boundaryDirectory = new DirectoryInfo(Path.Combine(
         root.FullName,
         "temp"));
     boundaryDirectory.Create();
-    var fakeDotnetLog = Path.Combine(
-        boundaryDirectory.FullName,
-        "fake-dotnet.jsonl");
     var fakeGitLabLog = Path.Combine(
         boundaryDirectory.FullName,
         "fake-gitlab.log");
-    InstallFakeDotnet();
-    Environment.SetEnvironmentVariable(
-        "PATH",
-        AppContext.BaseDirectory
-        + Path.PathSeparator
-        + originalPath);
-    Environment.SetEnvironmentVariable(
-        "COMPATIBILITY_FAKE_DOTNET_LOG",
-        fakeDotnetLog);
+    await File.WriteAllTextAsync(fakeGitLabLog, string.Empty);
     Environment.SetEnvironmentVariable(
         "COMPATIBILITY_FAKE_GITLAB_LOG",
         fakeGitLabLog);
@@ -322,12 +304,14 @@ static async Task ConsumeAsync(DirectoryInfo producerRoot)
         "fake-nuget.config");
     await File.WriteAllTextAsync(
         nugetConfig,
-        """
+        $$"""
         <?xml version="1.0" encoding="utf-8"?>
         <configuration>
           <packageSources>
             <clear />
-            <add key="synthetic" value="https://nuget.invalid/v3/index.json" />
+            <add key="synthetic"
+                 value="{{server.NuGetSource}}"
+                 allowInsecureConnections="true" />
           </packageSources>
         </configuration>
         """);
@@ -337,17 +321,20 @@ static async Task ConsumeAsync(DirectoryInfo producerRoot)
         await RunConsumerProfileAsync(
             root,
             server.ApiBase,
+            server.NuGetSource,
             PipelineProfile.Message,
             withAdapters: false);
         await RunConsumerProfileAsync(
             root,
             server.ApiBase,
+            server.NuGetSource,
             PipelineProfile.Publish,
             withAdapters: false);
 
         var messageEvents = await RunConsumerProfileAsync(
             root,
             server.ApiBase,
+            server.NuGetSource,
             PipelineProfile.Message,
             withAdapters: true);
         CompatibilityAssert.Require(
@@ -363,6 +350,7 @@ static async Task ConsumeAsync(DirectoryInfo producerRoot)
         var publishEvents = await RunConsumerProfileAsync(
             root,
             server.ApiBase,
+            server.NuGetSource,
             PipelineProfile.Publish,
             withAdapters: true);
         CompatibilityAssert.Require(
@@ -376,36 +364,28 @@ static async Task ConsumeAsync(DirectoryInfo producerRoot)
             ]),
             "Publish event/extension ordering changed.");
 
-        var fakePushes = File.ReadAllLines(fakeDotnetLog)
-            .Select(line => JsonSerializer.Deserialize<string[]>(line)
-                ?? throw new InvalidDataException(
-                    "The fake NuGet command record is invalid."))
-            .ToArray();
-        CompatibilityAssert.Require(
-            fakePushes.Length == 2
-            && fakePushes.All(arguments =>
-                arguments.Take(2).SequenceEqual(["nuget", "push",])
-                && arguments.Contains("--configfile", StringComparer.Ordinal)
-                && !arguments.Contains("--api-key", StringComparer.Ordinal)),
-            "NuGet publication did not use the fake secret-free boundary.");
         server.AssertExpectedOperations();
     }
     finally
     {
-        Environment.SetEnvironmentVariable("PATH", originalPath);
-        Environment.SetEnvironmentVariable(
-            "COMPATIBILITY_FAKE_DOTNET_LOG",
-            null);
         Environment.SetEnvironmentVariable(
             "COMPATIBILITY_FAKE_GITLAB_LOG",
             null);
-        Environment.SetEnvironmentVariable("CI_JOB_TOKEN", null);
+        Environment.SetEnvironmentVariable("CI_JOB_TOKEN", originalJobToken);
+        Environment.SetEnvironmentVariable("GITLAB_CI", originalGitLabCi);
+        Environment.SetEnvironmentVariable(
+            "CI_COMMIT_REF_NAME",
+            originalRefName);
+        Environment.SetEnvironmentVariable(
+            "CI_COMMIT_SHA",
+            originalCommitSha);
     }
 }
 
 static async Task<IReadOnlyList<string>> RunConsumerProfileAsync(
     DirectoryInfo root,
     Uri apiBase,
+    Uri nugetSource,
     PipelineProfile profile,
     bool withAdapters)
 {
@@ -466,9 +446,10 @@ static async Task<IReadOnlyList<string>> RunConsumerProfileAsync(
             NuGetPush = profile == PipelineProfile.Publish
                 ? new()
                 {
-                    Source = new("https://nuget.invalid/v3/index.json"),
+                    Source = nugetSource,
                     AuthenticationMode = NuGetAuthenticationMode.NuGetConfig,
                     ConfigFilePath = "temp/fake-nuget.config",
+                    AllowInsecureHttp = true,
                 }
                 : null,
             Publication = profile == PipelineProfile.Publish
@@ -492,33 +473,6 @@ static async Task<IReadOnlyList<string>> RunConsumerProfileAsync(
         ]);
     await builder.ExecutePipelineAsync().ConfigureAwait(false);
     return events;
-}
-
-static void InstallFakeDotnet()
-{
-    var processPath = Environment.ProcessPath
-        ?? throw new InvalidOperationException(
-            "The current process executable is unavailable.");
-    var fakeName = OperatingSystem.IsWindows() ? "dotnet.exe" : "dotnet";
-    var fakePath = Path.Combine(AppContext.BaseDirectory, fakeName);
-
-    if (!Path.GetFullPath(processPath).Equals(
-            Path.GetFullPath(fakePath),
-            OperatingSystem.IsWindows()
-                ? StringComparison.OrdinalIgnoreCase
-                : StringComparison.Ordinal))
-    {
-        File.Copy(processPath, fakePath, overwrite: true);
-    }
-
-    if (!OperatingSystem.IsWindows())
-    {
-        File.SetUnixFileMode(
-            fakePath,
-            UnixFileMode.UserRead
-            | UnixFileMode.UserWrite
-            | UnixFileMode.UserExecute);
-    }
 }
 
 static void CopyDirectory(DirectoryInfo source, DirectoryInfo destination)
@@ -657,11 +611,16 @@ internal sealed class FakeGitLabServer : IAsyncDisposable
     public Uri ApiBase { get; private set; } =
         new("http://127.0.0.1/");
 
+    public Uri NuGetSource { get; private set; } =
+        new("http://127.0.0.1/v3/index.json");
+
     public Task StartAsync()
     {
         _listener.Start();
         var endpoint = (IPEndPoint)_listener.LocalEndpoint;
-        ApiBase = new($"http://127.0.0.1:{endpoint.Port}/api/v4/");
+        var authority = $"http://127.0.0.1:{endpoint.Port}";
+        ApiBase = new($"{authority}/api/v4/");
+        NuGetSource = new($"{authority}/v3/index.json");
         _loop = AcceptAsync(_stopping.Token);
         return Task.CompletedTask;
     }
@@ -688,6 +647,12 @@ internal sealed class FakeGitLabServer : IAsyncDisposable
                         "POST /api/v4/projects/42/releases",
                         StringComparison.Ordinal)) == 2,
                 "The fake GitLab boundary did not receive both Release operations.");
+            CompatibilityAssert.Require(
+                _requests.Count(request =>
+                    request.Equals(
+                        "PUT /api/v2/package",
+                        StringComparison.Ordinal)) is 2 or 4,
+                "The fake NuGet boundary did not receive both package operations.");
         }
     }
 
@@ -796,6 +761,33 @@ internal sealed class FakeGitLabServer : IAsyncDisposable
         string method,
         string path)
     {
+        if (method == "GET"
+            && path.Equals("/v3/index.json", StringComparison.Ordinal))
+        {
+            return (
+                "200 OK",
+                JsonSerializer.Serialize(new
+                {
+                    version = "3.0.0",
+                    resources = new[]
+                    {
+                        new Dictionary<string, string>()
+                        {
+                            ["@id"] =
+                                $"{ApiBase.GetLeftPart(UriPartial.Authority)}"
+                                + "/api/v2/package",
+                            ["@type"] = "PackagePublish/2.0.0",
+                        },
+                    },
+                }));
+        }
+
+        if (method == "PUT"
+            && path.Equals("/api/v2/package", StringComparison.Ordinal))
+        {
+            return ("201 Created", "{}");
+        }
+
         if (method == "GET" && path.EndsWith(
                 "/merge_requests",
                 StringComparison.Ordinal))

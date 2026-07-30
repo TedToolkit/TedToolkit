@@ -135,6 +135,7 @@ jobs:
           dotnet run --project tests/Consumers/GitLab/GitLab.csproj -c Release --no-build -p:CandidateVersion="$CANDIDATE_VERSION"
           dotnet run --project tests/Consumers/EverythingButTheSink/EverythingButTheSink.csproj -c Release --no-build -p:CandidateVersion="$CANDIDATE_VERSION" -- produce
           dotnet run --project tests/Consumers/EverythingButTheSink/EverythingButTheSink.csproj -c Release --no-build -p:CandidateVersion="$CANDIDATE_VERSION" -- consume
+          dotnet run --project tests/Consumers/EverythingButTheSink/EverythingButTheSink.csproj -c Release --no-build -p:CandidateVersion="$CANDIDATE_VERSION" -- produce
 
       - name: Consume GitLab artifact manifest in a second process
         env:

@@ -280,7 +280,6 @@ internal sealed class NuGetPublicationService(
             packagePath,
             "--source",
             options.Source!.AbsoluteUri,
-            "--non-interactive",
         };
 
         if (options.AuthenticationMode == NuGetAuthenticationMode.ApiKey)
@@ -325,11 +324,6 @@ internal sealed class NuGetPublicationService(
         if (options.SkipDuplicate)
         {
             arguments.Add("--skip-duplicate");
-        }
-
-        if (options.AllowInsecureHttp)
-        {
-            arguments.Add("--allow-insecure-connections");
         }
 
         return arguments;

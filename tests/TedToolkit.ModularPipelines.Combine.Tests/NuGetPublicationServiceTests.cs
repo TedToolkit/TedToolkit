@@ -48,6 +48,14 @@ internal sealed class NuGetPublicationServiceTests
             CancellationToken.None);
 
         await Assert.That(result.Count).IsEqualTo(2);
+        await Assert.That(executor.Requests.All(request =>
+            !request.Arguments.Contains(
+                "--non-interactive",
+                StringComparer.Ordinal))).IsTrue();
+        await Assert.That(executor.Requests.All(request =>
+            !request.Arguments.Contains(
+                "--allow-insecure-connections",
+                StringComparer.Ordinal))).IsTrue();
         await Assert.That(calls).IsEquivalentTo(new[]
         {
             "checkpoint:read",
@@ -124,8 +132,9 @@ internal sealed class NuGetPublicationServiceTests
             },
             NuGetPush = new()
             {
-                Source = new("https://nuget.example/v3/index.json"),
+                Source = new("http://nuget.example/v3/index.json"),
                 CredentialReference = "NUGET_KEY",
+                AllowInsecureHttp = true,
                 UsePackagePublicationCheckpoint = checkpoint is not null,
             },
             PackagePublicationCheckpoint = checkpoint,
@@ -184,11 +193,14 @@ internal sealed class NuGetPublicationServiceTests
     private sealed class RecordingExecutor(List<string> calls)
         : ICombineCommandExecutor
     {
+        public List<CombineCommandRequest> Requests { get; } = [];
+
         public Task<CombineCommandResult> ExecuteAsync(
             CombineCommandRequest request,
             string? sensitiveArgument,
             CancellationToken cancellationToken)
         {
+            Requests.Add(request);
             calls.Add($"push:{Path.GetFileName(request.Arguments[2])}");
             return Task.FromResult(new CombineCommandResult(
                 0,
