@@ -2,13 +2,13 @@
 
 ## 📌 Status
 
-In review — secret rotation blocked
+Completed
 
 ## 🚦 Delivery Priority
 
 - Priority: P2
 - Rationale: Public NuGet packages are release-ready only after verification outside this repository.
-- Blocking prerequisites: P2-NUPIPE-001 through P2-NUPIPE-005, approved ADR-001, secret rotation, and GitHub Actions access. The User explicitly approved repository-owned isolated GitLab self-test evidence in place of an unavailable real GitLab project/runner on 2026-07-30.
+- Blocking prerequisites: Resolved. P2-NUPIPE-001 through P2-NUPIPE-005 and ADR-001 are complete; GitHub Actions passed; the User confirmed secret revocation and approved repository-owned isolated GitLab self-test evidence in place of an unavailable real GitLab project/runner on 2026-07-30.
 
 ## 🔗 Delivery Context
 
@@ -83,7 +83,7 @@ After P2-NUPIPE-003, the actual repository Build host and its GitHub workflow ar
 
 ## 📋 Completion Evidence
 
-Latest local evidence uses coordinated candidate `2026.7.30.3`: all four package-only hosts restored and built strictly; the basic provider consumers ran Validate and cross-process ConsumeArtifacts; the EverythingButTheSink-derived host ran Build/TUnit/Pack, two RID publishes, copied-manifest GitLab Message/Publish, real `dotnet nuget push` against fake NuGet plus fake GitLab MR/Generic Package/Release boundaries, optional neutral adapters, exact event/extension ordering, and a final repeated Produce cleanup run. ReleaseContract validated package contents, versions, symbols, exact dependencies, provenance, workflow/templates, retained template hashes, and the accepted baseline. The real side-effect-free GitHub Actions run [30508655933](https://github.com/TedToolkit/TedToolkit/actions/runs/30508655933) passed at `4ab00f6c323ecbcffb0f5ff2ab2bada218011c56` on Ubuntu: repository Validate, candidate generation, package-only restore/strict build, the complete `produce → consume → produce` consumer flow, and the second-process GitLab artifact handoff passed; publication/recovery jobs were skipped. On 2026-07-30 the User explicitly accepted this isolated GitLab self-test in place of an unavailable real GitLab runner. Secret rotation confirmation remains the only release-readiness blocker.
+Latest local evidence uses coordinated candidate `2026.7.30.3`: all four package-only hosts restored and built strictly; the basic provider consumers ran Validate and cross-process ConsumeArtifacts; the EverythingButTheSink-derived host ran Build/TUnit/Pack, two RID publishes, copied-manifest GitLab Message/Publish, real `dotnet nuget push` against fake NuGet plus fake GitLab MR/Generic Package/Release boundaries, optional neutral adapters, exact event/extension ordering, and a final repeated Produce cleanup run. ReleaseContract validated package contents, versions, symbols, exact dependencies, provenance, workflow/templates, retained template hashes, and the accepted baseline. The real side-effect-free GitHub Actions run [30508915616](https://github.com/TedToolkit/TedToolkit/actions/runs/30508915616) passed at `84c25a520320c45c3b2a96460db557ce913c209a` on Ubuntu: repository Validate, candidate generation, package-only restore/strict build, the complete `produce → consume → produce` consumer flow, and the second-process GitLab artifact handoff passed; publication/recovery jobs were skipped. On 2026-07-30 the User explicitly accepted this isolated GitLab self-test in place of an unavailable real GitLab runner and confirmed that the removed AI credential was revoked server-side. No release-readiness blocker remains.
 
 ## 🔄 Migration and Rollback
 

@@ -2,7 +2,7 @@
 
 ## 📌 Status
 
-Approved revision — the User approved the external Sonar dependency activation baseline at `be0e9b19941251498807d91088eaa4f8ea4d17a6` on 2026-07-29.
+Completed — all six work items passed implementation review and verification on 2026-07-30. The User-approved design baseline remains `be0e9b19941251498807d91088eaa4f8ea4d17a6`.
 
 - Change owner: User
 - Approval owner: User
@@ -90,7 +90,7 @@ The implementation directories, project references, public/internal types, resou
 | ID | Blocker | Affected scope | Next action | Status |
 | --- | --- | --- | --- | --- |
 | PB-01 | The 12 design documents share the User-approved baseline `0e01cced32f4d8e0946e54609880c617199a5b4c` | All implementation work packages | Resolved by the explicit User approval and this status-only follow-up commit | Resolved |
-| PB-02 | A plaintext credential-like AI value was discovered in gitignored `Build/appsettings.json`; that local file was removed from this checkout, and its value was never copied into tracked files or evidence, but server-side revocation/rotation is not yet confirmed | P2-NUPIPE-006 release readiness | User confirms revocation/rotation; the migrated workflow requires no AI secret, and examples, fixtures, packages, and logs permit only empty values or environment placeholders | Open |
+| PB-02 | A plaintext AI credential was discovered in gitignored `Build/appsettings.json`; that local file was removed from this checkout, its value was never copied into tracked files or evidence, and the User confirmed server-side revocation on 2026-07-30 | P2-NUPIPE-006 release readiness | Resolved by removal, tracked-file/CI secret scans, and User-confirmed revocation; the migrated workflow requires no AI secret | Resolved |
 | PB-03 | A real GitLab test-project/runner is unavailable | P2-NUPIPE-006 BC-006-8 evidence shape only | Resolved by the User's 2026-07-30 approval of the repository-owned isolated two-process GitLab self-test, retained template hashes, fake provider boundaries, and real GitHub Actions evidence | Resolved |
 | PB-04 | The current CodeAnalysis graph explicitly references `Roslynator.CodeFixes`, and several selected analyzer packages also carry their own code-fix DLLs in Roslyn-versioned asset subtrees | P2-NUPIPE-001 scope and IDE compatibility approval | Resolved by User decision: preserve the complete current code-fix provider set and its audited host-compatible variants, retaining distinct upstream Roslyn-versioned paths; any asset or variant that fails license, dependency-closure, selection, or isolated-host loading blocks 001 and requires revised User approval rather than flattening or silent removal | Resolved |
 | PB-05 | The CodeAnalysis dependency-activation revision is approved at `be0e9b19941251498807d91088eaa4f8ea4d17a6` | P2-NUPIPE-001 | Resolved by explicit User approval | Resolved |
@@ -104,7 +104,7 @@ The implementation directories, project references, public/internal types, resou
 | P2-NUPIPE-003 | Combine and repository Build-host migration | Two input modes, explicit profiles/actions, neutral package checkpoints/events/Release-finalization contract, direct host ProjectReferences, coordinated calendar/progress/tag workflow with provider mutation still gated off, least-privilege artifact/push jobs, and compatibility gates | P2 — consumer entry point and first real migration | 0.75–1.20 person-months | 001, 002 | Completed | `work-items/P2-NUPIPE-003-combine-profiles.md` |
 | P2-NUPIPE-004 | Combine GitHub provider | Client evidence, approved supplemental ADR, and idempotent GitHub automation with resumable Release-asset and Release-finalization ordering | P2 — provides the approved corrected GitHub release outcome | 0.30–0.50 person-months | 002, 003 | Completed | `work-items/P2-NUPIPE-004-github-adapter.md` |
 | P2-NUPIPE-005 | Combine GitLab provider | Client evidence, approved supplemental ADR, arbitrary GitLab URLs, MR/Release, provider-neutral Release finalization, and idempotent Generic Package support | P2 — satisfies cross-platform and self-hosted requirements | 0.35–0.55 person-months | 002, 003 | Completed | `work-items/P2-NUPIPE-005-gitlab-adapter.md` |
-| P2-NUPIPE-006 | Consumer verification and release preparation | Package-only consumers, packaging, two-job CI examples, real GitHub Actions verification, isolated GitLab two-process verification, release-history acceptance, and EverythingButTheSink compatibility verification | P2 — proves behavior outside the project-referenced repository host | 0.35–0.60 person-months | 001–005, PB-02 before release readiness | In review — secret rotation blocked | `work-items/P2-NUPIPE-006-consumer-verification.md` |
+| P2-NUPIPE-006 | Consumer verification and release preparation | Package-only consumers, packaging, two-job CI examples, real GitHub Actions verification, isolated GitLab two-process verification, release-history acceptance, and EverythingButTheSink compatibility verification | P2 — proves behavior outside the project-referenced repository host | 0.35–0.60 person-months | 001–005, PB-02 before release readiness | Completed | `work-items/P2-NUPIPE-006-consumer-verification.md` |
 
 ## ⚠️ Risks and Coordination
 
