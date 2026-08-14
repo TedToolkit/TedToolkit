@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="CreateReleaseModule.cs" company="TedToolkit">
 // Copyright (c) TedToolkit. All rights reserved.
 // Licensed under the LGPL-3.0 license. See COPYING, COPYING.LESSER file in the project root for full license information.
@@ -63,7 +63,10 @@ public sealed class CreateReleaseModule(
         await githubClient.Client.Repository.Release.Create(repositoryId,
             new NewRelease(version)
             {
-                Name = version, Body = releaseNote.ToString(), Draft = false, Prerelease = false,
+                Name = version,
+                Body = releaseNote.ToString(),
+                Draft = false,
+                Prerelease = false,
             }).ConfigureAwait(false);
 
         return true;

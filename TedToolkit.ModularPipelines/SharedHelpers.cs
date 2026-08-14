@@ -88,7 +88,7 @@ public static class SharedHelpers
         ArgumentNullException.ThrowIfNull(diffOptions);
         var diffFile = context.GetOutputFolder().GetFile($"diff{Environment.TickCount}.txt");
         await context.Git().Commands.Diff(
-                diffOptions with { Arguments = [..diffOptions.Arguments ?? [], "--output", diffFile.Path,], },
+                diffOptions with { Arguments = [.. diffOptions.Arguments ?? [], "--output", diffFile.Path,], },
                 token: cancellationToken)
             .ConfigureAwait(false);
 

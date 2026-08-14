@@ -46,7 +46,8 @@ public sealed class ModifyBranchMergeRequestModule(
                     CultureInfo.CurrentCulture),
                 new PullRequestRequest()
                 {
-                    Base = SharedHelpers.DEVELOPMENT_BRANCH, State = ItemStateFilter.Open,
+                    Base = SharedHelpers.DEVELOPMENT_BRANCH,
+                    State = ItemStateFilter.Open,
                 })
             .ConfigureAwait(false);
 
