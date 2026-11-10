@@ -21,4 +21,9 @@
       <PackageReference Include="StyleCop.Analyzers"/>
     </ItemGroup>
 
+
+  <ItemGroup>
+    <None Include="../.agents/skills/diagnose-tedtoolkit-code-analysis/**/*"
+          Pack="true" PackagePath="skills/diagnose-tedtoolkit-code-analysis/" />
+  </ItemGroup>
 </Project>

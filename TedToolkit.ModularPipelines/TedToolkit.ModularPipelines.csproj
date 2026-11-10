@@ -18,4 +18,9 @@
     <PackageReference Include="TextCopy" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <None Include="../.agents/skills/maintain-tedtoolkit-build-pipelines/**/*"
+          Pack="true" PackagePath="skills/maintain-tedtoolkit-build-pipelines/" />
+  </ItemGroup>
 </Project>
