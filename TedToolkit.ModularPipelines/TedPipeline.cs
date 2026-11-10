@@ -36,7 +36,6 @@ public class TedPipeline(PipelineFiles files, FileInfo appSettings)
     public Task ExecuteAsync(Func<PipelineBuilder, PipelineBuilder>? modifyBuilder = null)
     {
         var builder = CreateNoModules()
-            .AddModule<GenerateCommitMessageModule>()
             .AddModule<AssertBuildTestModule>()
             .AddModule<FormatAllCodeModule>()
             .AddModule<PublishModule>()
@@ -45,7 +44,6 @@ public class TedPipeline(PipelineFiles files, FileInfo appSettings)
             .AddModule<TestModule>()
             .AddModule<UpdateEditorConfigModule>()
             .AddModule<CreatePullRequestModule>()
-            .AddModule<ModifyBranchMergeRequestModule>()
             .AddModule<NugetPushModule>()
             .AddModule<CreateReleaseModule>()
             .AddModule<DotnetBuildModule>();
@@ -74,8 +72,7 @@ public class TedPipeline(PipelineFiles files, FileInfo appSettings)
                 collection
                     .Configure<DotNetPipelineOptions>(context.Configuration.GetSection("DotNet"))
                     .Configure<NuGetPipelineOptions>(context.Configuration.GetSection("NuGet"))
-                    .AddSingleton(files)
-                    .AddAi(context);
+                    .AddSingleton(files);
             })
             .ConfigurePipelineOptions((_, options) =>
             {

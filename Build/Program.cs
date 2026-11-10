@@ -23,7 +23,6 @@ var pipeline = new TedPipeline(
 
 
 var builder = pipeline.CreateNoModules()
-    .AddModule<GenerateCommitMessageModule>()
     .AddModule<AssertBuildTestModule>()
     .AddModule<FormatAllCodeModule>()
     .AddModule<CleanOutputModule>()

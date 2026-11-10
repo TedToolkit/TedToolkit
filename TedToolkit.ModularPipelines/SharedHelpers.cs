@@ -52,18 +52,6 @@ public static class SharedHelpers
             cancellationToken);
     }
 
-    /// <summary>
-    /// Retrieves the commit message prompt from a predefined resource file.
-    /// </summary>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>A task that represents the asynchronous operation. The result contains the commit message prompt as a string.</returns>
-    public static Task<string> GetCommitMessagePromptAsync(in CancellationToken cancellationToken)
-    {
-        return GetManifestResourceStringAsync(
-            "TedToolkit.ModularPipelines.CommitMessage.md",
-            cancellationToken);
-    }
-
     private static async Task<string> GetManifestResourceStringAsync(string name, CancellationToken cancellationToken)
     {
 #pragma warning disable CA2007
