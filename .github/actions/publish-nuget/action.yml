@@ -1,0 +1,42 @@
+name: Publish TedToolkit packages to NuGet.org
+description: Run the TedToolkit build and publish with a short-lived NuGet.org credential
+inputs:
+  nuget-user:
+    description: NuGet.org account name that owns the trusted publishing policy
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0'
+
+    - name: Sign in to NuGet.org
+      id: nuget
+      uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+      with:
+        user: ${{ inputs.nuget-user }}
+
+    - name: Run Build Project
+      shell: bash
+      env:
+        NuGet__ApiKey: ${{ steps.nuget.outputs.NUGET_API_KEY }}
+        NuGet__Url: https://www.nuget.org
+        NuGet__Source: https://api.nuget.org/v3/index.json
+        GITHUB_TOKEN: ${{ github.token }}
+      run: dotnet run --project Build/Build.csproj
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: build-output
+        path: output/
+        retention-days: 2
+        if-no-files-found: ignore
