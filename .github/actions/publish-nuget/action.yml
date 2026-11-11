@@ -1,9 +1,9 @@
 name: Publish TedToolkit packages to NuGet.org
-description: Run the TedToolkit build and publish with a short-lived NuGet.org credential
+description: Build, test, pack, and publish with a short-lived NuGet.org credential
 inputs:
   nuget-user:
-    description: NuGet.org account name that owns the trusted publishing policy
-    required: true
+    description: NuGet.org account for Trusted Publishing. API key callers supply NUGET_API_KEY in the environment.
+    required: false
 runs:
   using: composite
   steps:
@@ -17,26 +17,84 @@ runs:
       with:
         dotnet-version: '11.0.x'
 
+    - name: Generate sources
+      if: vars.BUILD_GENERATOR_PROJECT != ''
+      uses: $/.github/actions/run-build
+      env:
+        BUILD_STAGE: generate
+        BUILD_GENERATOR_PROJECT: ${{ vars.BUILD_GENERATOR_PROJECT }}
+        BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
+
+    - name: Build solution
+      uses: $/.github/actions/run-build
+      env:
+        BUILD_STAGE: build
+        BUILD_SOLUTION: ${{ vars.BUILD_SOLUTION || (github.repository == 'TedToolkit/TedToolkit' && 'TedToolkit.slnx') || '' }}
+        BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
+
+    - name: Run tests
+      if: vars.BUILD_TEST_PROJECTS != ''
+      uses: $/.github/actions/run-build
+      env:
+        BUILD_STAGE: test
+        BUILD_SOLUTION: ${{ vars.BUILD_SOLUTION || (github.repository == 'TedToolkit/TedToolkit' && 'TedToolkit.slnx') || '' }}
+        BUILD_TEST_PROJECTS: ${{ vars.BUILD_TEST_PROJECTS }}
+        BUILD_TEST_FRAMEWORK: ${{ vars.BUILD_TEST_FRAMEWORK }}
+        BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
+
+    - name: Upload test reports
+      uses: actions/upload-artifact@v4
+      if: always() && vars.BUILD_TEST_PROJECTS != ''
+      with:
+        name: test-results
+        path: output/test/
+        if-no-files-found: warn
+
+    - name: Resolve release version
+      if: github.ref == 'refs/heads/main' && github.repository != 'TedToolkit/TedToolkit'
+      id: version
+      uses: $/.github/actions/run-build
+      env:
+        BUILD_STAGE: version
+        GH_TOKEN: ${{ github.token }}
+
+    - name: Pack release packages
+      if: github.ref == 'refs/heads/main'
+      uses: $/.github/actions/run-build
+      env:
+        BUILD_STAGE: pack
+        BUILD_SOLUTION: ${{ vars.BUILD_SOLUTION || (github.repository == 'TedToolkit/TedToolkit' && 'TedToolkit.slnx') || '' }}
+        BUILD_PACK_PROJECTS: ${{ vars.BUILD_PACK_PROJECTS || (github.repository == 'TedToolkit/TedToolkit' && 'TedToolkit.slnx') || '' }}
+        BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
+        BUILD_PACKAGE_VERSION: ${{ steps.version.outputs.value }}
+
+    - name: Upload release packages
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-packages
+        path: output/nuget/
+        if-no-files-found: error
+
     - name: Sign in to NuGet.org
+      if: github.ref == 'refs/heads/main' && inputs.nuget-user != ''
       id: nuget
       uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
       with:
         user: ${{ inputs.nuget-user }}
 
-    - name: Run Build Project
-      shell: bash
+    - name: Publish NuGet packages
+      if: github.ref == 'refs/heads/main'
+      uses: $/.github/actions/run-build
       env:
-        NuGet__ApiKey: ${{ steps.nuget.outputs.NUGET_API_KEY }}
-        NuGet__Url: https://www.nuget.org
-        NuGet__Source: https://api.nuget.org/v3/index.json
-        GITHUB_TOKEN: ${{ github.token }}
-      run: dotnet run --project Build/Build.csproj
+        BUILD_STAGE: publish
+        NUGET_API_KEY: ${{ steps.nuget.outputs.NUGET_API_KEY || env.NUGET_API_KEY }}
+        NUGET_SOURCE: ${{ env.NUGET_SOURCE || 'https://api.nuget.org/v3/index.json' }}
 
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: build-output
-        path: output/
-        retention-days: 2
-        if-no-files-found: ignore
+    - name: Create GitHub release
+      if: github.ref == 'refs/heads/main' && steps.version.outputs.value != ''
+      uses: $/.github/actions/run-build
+      env:
+        BUILD_STAGE: release
+        GH_TOKEN: ${{ github.token }}
+        RELEASE_VERSION: ${{ steps.version.outputs.value }}

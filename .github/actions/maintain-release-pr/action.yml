@@ -1,0 +1,15 @@
+name: Maintain the release pull request
+description: Open a draft release pull request from development to main when needed
+runs:
+  using: composite
+  steps:
+    - name: Check release pull request
+      shell: bash
+      env:
+        GH_REPO: ${{ github.repository }}
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        open="$(gh pr list --base main --head development --state open --limit 1 --json number --jq 'length')"
+        if [[ "$open" == 0 ]]; then
+          gh pr create --base main --head development --draft --title '🔖 Release' --body 'Promote development to main.'
+        fi

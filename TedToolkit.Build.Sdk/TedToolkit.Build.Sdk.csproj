@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <Version>0.1.0-preview.1</Version>
+    <IsPackable>true</IsPackable>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <PackageType>MSBuildSdk</PackageType>
+    <Authors>TedToolkit</Authors>
+    <Description>Shared MSBuild configuration for TedToolkit repositories.</Description>
+    <PackageProjectUrl>https://github.com/TedToolkit/TedToolkit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TedToolkit/TedToolkit</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="Sdk/CodeAnalysis.props" Pack="true" PackagePath="Sdk/" />
+    <None Include="../props/AlmostAllFrameworks.props;../props/CodeAnalysisSettings.props;../props/NugetPackage.props"
+          Pack="true" PackagePath="Sdk/" />
+    <None Include="../assets/Icon.jpg;../assets/stylecop.json" Pack="true" PackagePath="assets/" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <Target Name="PrepareSdkPackage" BeforeTargets="_GetPackageFiles">
+    <PropertyGroup>
+      <_EditorConfig>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)/../.editorconfig'))</_EditorConfig>
+      <_CSharpRules>$([System.Text.RegularExpressions.Regex]::Replace($(_EditorConfig), '(?ms)^\[\*\.\{[^}]+\}\]\r?\n.*?(?=^\[)|^\[(?:\*|\*\.cs)\]\r?\n', ''))</_CSharpRules>
+      <_AnalyzerConfig>$(IntermediateOutputPath)TedToolkit.globalconfig</_AnalyzerConfig>
+    </PropertyGroup>
+    <Error Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(_CSharpRules), '(?m)^\['))"
+           Text="Update the default analyzer config conversion for the new .editorconfig section." />
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <Copy SourceFiles="../COPYING.LESSER;../COPYING"
+          DestinationFiles="$(IntermediateOutputPath)LICENSE.txt;$(IntermediateOutputPath)GPL.txt"
+          SkipUnchangedFiles="true" />
+    <WriteLinesToFile File="$(_AnalyzerConfig)" Overwrite="true" WriteOnlyWhenDifferent="true" Encoding="UTF-8"
+                      Lines="is_global = true;global_level = 10;$([MSBuild]::Escape($(_CSharpRules)))" />
+    <ItemGroup>
+      <None Include="$(_AnalyzerConfig)" Pack="true" PackagePath="assets/" />
+      <None Include="$(IntermediateOutputPath)LICENSE.txt;$(IntermediateOutputPath)GPL.txt" Pack="true" PackagePath="/" />
+    </ItemGroup>
+  </Target>
+</Project>

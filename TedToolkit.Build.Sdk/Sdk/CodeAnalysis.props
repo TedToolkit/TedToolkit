@@ -1,0 +1,26 @@
+<Project>
+  <Import Project="CodeAnalysisSettings.props" />
+
+  <PropertyGroup>
+    <_TedToolkitEditorConfig>$([MSBuild]::GetPathOfFileAbove('.editorconfig', '$(MSBuildProjectDirectory)'))</_TedToolkitEditorConfig>
+    <_TedToolkitRoslynatorPackages>Roslynator.Analyzers;Roslynator.CodeAnalysis.Analyzers;Roslynator.CodeFixes;Roslynator.Formatting.Analyzers</_TedToolkitRoslynatorPackages>
+    <_TedToolkitRoslynatorVersion>4.15.0</_TedToolkitRoslynatorVersion>
+    <_TedToolkitStyleCopVersion>1.2.0-beta.556</_TedToolkitStyleCopVersion>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' == 'true'">
+    <PackageVersion Include="$(_TedToolkitRoslynatorPackages)" Exclude="@(PackageVersion)" Version="$(_TedToolkitRoslynatorVersion)" />
+    <PackageVersion Include="StyleCop.Analyzers" Exclude="@(PackageVersion)" Version="$(_TedToolkitStyleCopVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="$(_TedToolkitRoslynatorPackages)" Exclude="@(PackageReference)" PrivateAssets="all">
+      <Version Condition="'$(ManagePackageVersionsCentrally)' != 'true'">$(_TedToolkitRoslynatorVersion)</Version>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Exclude="@(PackageReference)" PrivateAssets="all">
+      <Version Condition="'$(ManagePackageVersionsCentrally)' != 'true'">$(_TedToolkitStyleCopVersion)</Version>
+    </PackageReference>
+    <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)..\assets\TedToolkit.globalconfig"
+                               Condition="'$(_TedToolkitEditorConfig)' == ''" />
+  </ItemGroup>
+</Project>
