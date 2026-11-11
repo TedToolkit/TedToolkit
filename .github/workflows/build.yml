@@ -10,6 +10,7 @@ env:
   BUILD_GENERATOR_PROJECT: ${{ vars.BUILD_GENERATOR_PROJECT }}
   BUILD_SOLUTION: ${{ vars.BUILD_SOLUTION || (github.repository == 'TedToolkit/TedToolkit' && 'TedToolkit.slnx') || '' }}
   BUILD_TEST_PROJECTS: ${{ vars.BUILD_TEST_PROJECTS }}
+  BUILD_TEST_FRAMEWORK: ${{ vars.BUILD_TEST_FRAMEWORK }}
   BUILD_PACK_PROJECTS: ${{ vars.BUILD_PACK_PROJECTS || (github.repository == 'TedToolkit/TedToolkit' && 'TedToolkit.slnx') || '' }}
   BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
 

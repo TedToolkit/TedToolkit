@@ -119,11 +119,12 @@ Set the following GitHub Actions variables in the calling repository. Paths are 
 | --- | --- |
 | `BUILD_SOLUTION` | Solution to build, such as `TedToolkit.Results.slnx`. Required for downstream repositories using the script. |
 | `BUILD_TEST_PROJECTS` | Optional executable test project paths, one `.csproj` per line. |
+| `BUILD_TEST_FRAMEWORK` | Optional runtime target for test projects with multiple target frameworks. |
 | `BUILD_PACK_PROJECTS` | Optional package project or solution paths, one per line. Required for downstream repositories publishing NuGet packages. |
 | `BUILD_GENERATOR_PROJECT` | Optional executable .NET project for generating sources. Runs in its own step on each runner that uses the generated files. |
 | `BUILD_CONFIGURATION` | Optional build and test configuration. Defaults to `Release`. |
 
-The workflow runs build, test, and pack as separate jobs. Test and pack restore their own inputs from the caller's checkout. Test uploads TRX files as `test-results`. Pack uploads the original `.nupkg` files as `nuget-packages`.
+The workflow runs build, test, and pack as separate jobs. Test and pack build the solution on their own runners so solution-level dependencies such as analyzers are available. Test uploads TRX files as `test-results`. Pack uploads the original `.nupkg` files as `nuget-packages`.
 
 Before switching to the new workflow revision, copy the solution and test paths from your existing build entry point into the corresponding variables, select the package projects, and move any repository-specific generation into its own workflow job. Then remove the old build project and its solution entry. Repositories that track `@development` need these settings before the shared workflow changes on that branch.
 

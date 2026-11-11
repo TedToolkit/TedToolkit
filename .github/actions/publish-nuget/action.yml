@@ -37,7 +37,9 @@ runs:
       uses: $/.github/actions/run-build
       env:
         BUILD_STAGE: test
+        BUILD_SOLUTION: ${{ vars.BUILD_SOLUTION || (github.repository == 'TedToolkit/TedToolkit' && 'TedToolkit.slnx') || '' }}
         BUILD_TEST_PROJECTS: ${{ vars.BUILD_TEST_PROJECTS }}
+        BUILD_TEST_FRAMEWORK: ${{ vars.BUILD_TEST_FRAMEWORK }}
         BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
 
     - name: Upload test reports
@@ -61,6 +63,7 @@ runs:
       uses: $/.github/actions/run-build
       env:
         BUILD_STAGE: pack
+        BUILD_SOLUTION: ${{ vars.BUILD_SOLUTION || (github.repository == 'TedToolkit/TedToolkit' && 'TedToolkit.slnx') || '' }}
         BUILD_PACK_PROJECTS: ${{ vars.BUILD_PACK_PROJECTS || (github.repository == 'TedToolkit/TedToolkit' && 'TedToolkit.slnx') || '' }}
         BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
         BUILD_PACKAGE_VERSION: ${{ steps.version.outputs.value }}

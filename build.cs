@@ -35,6 +35,14 @@ catch (Exception error) when (error is IOException or InvalidOperationException 
 
 static async Task<int> TestAsync(FilePath[] projects, string configuration)
 {
+    var buildExit = await PrepareSolutionAsync(configuration, []);
+    if (buildExit != 0)
+    {
+        return buildExit;
+    }
+
+    var framework = Environment.GetEnvironmentVariable("BUILD_TEST_FRAMEWORK");
+    string[] frameworkArguments = string.IsNullOrWhiteSpace(framework) ? [] : ["--framework", framework];
     var output = (DirectoryPath.CurrentDirectory / "output" / "test").Create();
     var failed = false;
     foreach (var (project, index) in projects.Select((path, index) => (path, index)))
@@ -43,7 +51,7 @@ static async Task<int> TestAsync(FilePath[] projects, string configuration)
         report.Delete();
 
         var exitCode = await RunDotNetAsync([
-            "run", "--project", project.FullName, "-c", configuration, "--no-launch-profile",
+            "run", "--project", project.FullName, "-c", configuration, "--no-launch-profile", .. frameworkArguments,
             DisableBuildPacking, "--", "--report-trx", "--results-directory", output.FullName, "--report-trx-filename", report.Name,
         ]);
         if (exitCode != 0 || !report.Exists)
@@ -68,6 +76,11 @@ static async Task<int> PackAsync(FilePath[] projects, string configuration)
     string[] versionArguments = string.IsNullOrWhiteSpace(version)
         ? []
         : [$"-p:Version={version}", $"-p:PackageVersion={version}"];
+    var buildExit = await PrepareSolutionAsync(configuration, versionArguments);
+    if (buildExit != 0)
+    {
+        return buildExit;
+    }
 
     foreach (var project in projects)
     {
@@ -82,6 +95,17 @@ static async Task<int> PackAsync(FilePath[] projects, string configuration)
 
     _ = ReadPackages();
     return 0;
+}
+
+static Task<int> PrepareSolutionAsync(string configuration, string[] properties)
+{
+    var solution = Environment.GetEnvironmentVariable("BUILD_SOLUTION");
+    return string.IsNullOrWhiteSpace(solution)
+        ? Task.FromResult(0)
+        : RunDotNetAsync([
+            "build", RequireFile(solution.Trim(), "BUILD_SOLUTION").FullName, "-c", configuration,
+            DisableBuildPacking, .. properties,
+        ]);
 }
 
 static async Task<int> PublishAsync(string source, string apiKey)

@@ -7,6 +7,15 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Load shared code analysis settings
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      env:
+        BUILD_ACTION_PATH: ${{ github.action_path }}
+      run: |
+        if [[ ! -f .editorconfig ]]; then
+          cp -- "$BUILD_ACTION_PATH/../../../.editorconfig" .editorconfig
+        fi
     - name: Run script
       id: script
       shell: bash
