@@ -19,5 +19,4 @@ namespace TedToolkit.ModularPipelines.Modules;
 [DependsOnAllModulesInheritingFrom(typeof(PrepareModule<>))]
 [DependsOnAllModulesInheritingFrom(typeof(CompileModule<>))]
 [DependsOnAllModulesInheritingFrom(typeof(CompileCheckModule<>))]
-[DependsOnAllModulesInheritingFrom(typeof(CheckModule<>))]
 public abstract class ReleaseModule<T> : Module<T>;

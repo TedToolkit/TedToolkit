@@ -108,10 +108,6 @@ Call the reusable workflow from a downstream repository's GitHub Actions workflo
 ```yaml
 on: [push, workflow_dispatch]
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   build:
     uses: TedToolkit/TedToolkit/.github/workflows/build.yml@<commit-sha>
@@ -123,11 +119,16 @@ Set the following GitHub Actions variables in the calling repository. Paths are 
 | --- | --- |
 | `BUILD_SOLUTION` | Solution to build, such as `TedToolkit.Results.slnx`. Required for downstream repositories using the script. |
 | `BUILD_TEST_PROJECTS` | Optional executable test project paths, one `.csproj` per line. |
+| `BUILD_PACK_PROJECTS` | Optional package project or solution paths, one per line. Required for downstream repositories publishing NuGet packages. |
 | `BUILD_CONFIGURATION` | Optional build and test configuration. Defaults to `Release`. |
 
-Once the variables are set, remove the downstream `Build/Build.csproj` and its solution entry. If the repository uses the shared `publish-nuget` action, update its reference to the same revision. Submodules used by project imports are still checked out. The workflow uploads `output/` as the `build-output` artifact.
+The workflow runs build, test, and pack as separate jobs. Test and pack restore their own inputs from the caller's checkout. Test uploads TRX files as `test-results`. Pack uploads the original `.nupkg` files as `nuget-packages`.
 
-For a local run, use the .NET 10 SDK. Set `BUILD_SOLUTION` and optionally `BUILD_TEST_PROJECTS` in the environment, then run `dotnet run --file /path/to/TedToolkit/build.cs` from the root of the repository to build. For a custom configuration, set `DotNet__Configuration`.
+Before switching to the new workflow revision, copy the solution and test paths from your existing build entry point into the corresponding variables, select the package projects, and move any repository-specific generation into its own workflow job. Then remove the old build project and its solution entry. Repositories that track `@development` need these settings before the shared workflow changes on that branch.
+
+For publishing, use the shared `publish-nuget` action at the same revision. Its pack step writes packages to `output/nuget/` and its publish step reads those files. The version step passes the release version to the pack and GitHub release steps. Configure NuGet Trusted Publishing in the publishing repository.
+
+For a local run, use the .NET 10 SDK and run `dotnet run -c Release --file /path/to/TedToolkit/build.cs` from the target repository root. Set `BUILD_STAGE` to `build`, `test`, or `pack`, along with the variables for that stage.
 
 ## License
 

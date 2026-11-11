@@ -10,8 +10,8 @@ Identify the entry point for the repository and whether the target is build, tes
 
 ## Workflow
 
-- For the shared `build.yml`, check the calling repository's `BUILD_SOLUTION` and `BUILD_TEST_PROJECTS` Actions variables. For a local run, set those environment variables and run `dotnet run --file /path/to/TedToolkit/build.cs` from the target repository root. List one test project per line.
-- For a repository still using the legacy build project, inspect the solution and test paths in `Build/Program.cs` before migrating its configuration to the shared workflow.
+- For the shared `build.yml`, check the calling repository's `BUILD_SOLUTION`, `BUILD_TEST_PROJECTS`, and `BUILD_PACK_PROJECTS` Actions variables. List one test or package target per line.
+- For a local run, set `BUILD_STAGE` to `build`, `test`, or `pack` and set the corresponding target variable. Run `dotnet run --file /path/to/TedToolkit/build.cs` from the target repository root.
 - When debugging the pipeline, start with the corresponding direct Release build or test command to separate SDK failures from orchestration failures.
 - Check the existing branch and release conditions before invoking a pipeline that may write externally. Verify the build or test stage that changed without publishing packages.
 

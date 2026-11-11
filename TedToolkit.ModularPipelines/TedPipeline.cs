@@ -25,8 +25,8 @@ namespace TedToolkit.ModularPipelines;
 /// Basic pipelines.
 /// </summary>
 /// <param name="files">FileInfo.</param>
-/// <param name="appSettings">Optional JSON settings file. Environment variables take precedence.</param>
-public class TedPipeline(PipelineFiles files, FileInfo? appSettings = null)
+/// <param name="appSettings">Settings.</param>
+public class TedPipeline(PipelineFiles files, FileInfo appSettings)
 {
     /// <summary>
     /// execute.
@@ -59,7 +59,7 @@ public class TedPipeline(PipelineFiles files, FileInfo? appSettings = null)
     public PipelineBuilder CreateNoModules()
     {
         var builder = Pipeline.CreateBuilder();
-        if (appSettings is { Exists: true, })
+        if (appSettings.Exists)
         {
             builder.Configuration.AddJsonFile(appSettings.FullName);
         }
