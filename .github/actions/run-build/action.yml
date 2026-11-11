@@ -13,9 +13,13 @@ runs:
       env:
         BUILD_ACTION_PATH: ${{ github.action_path }}
       run: |
-        if [[ ! -f .editorconfig ]]; then
-          cp -- "$BUILD_ACTION_PATH/../../../.editorconfig" .editorconfig
+        if [[ -f .editorconfig ]]; then
+          exit 0
         fi
+        if [[ -f global.json ]] && jq -e '."msbuild-sdks"."TedToolkit.Build.Sdk" != null' global.json >/dev/null; then
+          exit 0
+        fi
+        cp -- "$BUILD_ACTION_PATH/../../../.editorconfig" .editorconfig
     - name: Run script
       id: script
       shell: bash
