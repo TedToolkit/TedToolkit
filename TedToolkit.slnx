@@ -15,5 +15,6 @@
     <File Path="README.md" />
   </Folder>
   <Project Path="TedToolkit.CodeAnalysis/TedToolkit.CodeAnalysis.csproj" />
+  <Project Path="TedToolkit.Build.Sdk/TedToolkit.Build.Sdk.csproj" />
   <Project Path="TedToolkit.ModularPipelines/TedToolkit.ModularPipelines.csproj" />
 </Solution>
