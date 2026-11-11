@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>TedToolkit.Build.Sdk</id>
+    <version>0.1.0-preview.1</version>
+    <authors>TedToolkit</authors>
+    <license type="file">LICENSE.txt</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/TedToolkit/TedToolkit</projectUrl>
+    <description>Shared MSBuild configuration for TedToolkit repositories.</description>
+    <packageTypes>
+      <packageType name="MSBuildSdk" />
+    </packageTypes>
+    <repository type="git" url="https://github.com/TedToolkit/TedToolkit" commit="78f3833ead729074ca132c358540b5430853324b" />
+  </metadata>
+</package>

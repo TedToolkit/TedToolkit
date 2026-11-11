@@ -1,0 +1,9 @@
+{
+  "resources": [
+    {
+      "@type": "PackageBaseAddress/3.0.0",
+      "@id": "https://raw.githubusercontent.com/TedToolkit/TedToolkit/refs/tags/build-sdk-v0.1.0-preview.1/packages/"
+    }
+  ],
+  "version": "3.0.0"
+}
