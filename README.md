@@ -95,11 +95,44 @@ All libraries target a wide range of frameworks:
 
 | Frameworks | Versions |
 |---|---|
-| .NET | 6.0, 7.0, 8.0, 9.0, 10.0 |
+| .NET | 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 |
 | .NET Framework | 4.7.2, 4.8 |
 | .NET Standard | 2.0, 2.1 |
 
 > **Note:** `TedToolkit.RoslynHelper` targets `netstandard2.0` only (Roslyn analyzer requirement). `TedToolkit.Hexa.Raii.*` does not target .NET Framework 4.x.
+
+## Shared build workflow
+
+The [TedToolkit Build SDK](TedToolkit.Build.Sdk/README.md) provides the MSBuild configuration for local and CI builds. Its guide covers pinning an SDK version and serving new versions from GitHub tags.
+
+Call the reusable workflow from a downstream repository's GitHub Actions workflow. Pin `uses` to a TedToolkit revision that contains `build.cs`.
+
+```yaml
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    uses: TedToolkit/TedToolkit/.github/workflows/build.yml@<commit-sha>
+```
+
+Set the following GitHub Actions variables in the calling repository. Paths are relative to that repository's root.
+
+| Variable | Value |
+| --- | --- |
+| `BUILD_SOLUTION` | Solution to build, such as `TedToolkit.Results.slnx`. Required for downstream repositories using the script. |
+| `BUILD_TEST_PROJECTS` | Optional executable test project paths, one `.csproj` per line. |
+| `BUILD_TEST_FRAMEWORK` | Optional runtime target for test projects with multiple target frameworks. |
+| `BUILD_PACK_PROJECTS` | Optional package project or solution paths, one per line. Required for downstream repositories publishing NuGet packages. |
+| `BUILD_GENERATOR_PROJECT` | Optional executable .NET project for generating sources. Runs in its own step on each runner that uses the generated files. |
+| `BUILD_CONFIGURATION` | Optional build and test configuration. Defaults to `Release`. |
+
+The workflow runs build, test, and pack as separate jobs. Test and pack build the solution on their own runners so solution-level dependencies such as analyzers are available. Test uploads TRX files as `test-results`. Pack uploads the original `.nupkg` files as `nuget-packages`.
+
+Before switching to the new workflow revision, copy the solution and test paths from your existing build entry point into the corresponding variables, select the package projects, and move any repository-specific generation into its own workflow job. Then remove the old build project and its solution entry. Repositories that track `@development` need these settings before the shared workflow changes on that branch.
+
+For publishing, use the shared `publish-nuget` action at the same revision. Its pack step writes packages to `output/nuget/` and its publish step reads those files. The version step passes the release version to the pack and GitHub release steps. Pass the Trusted Publishing account through `nuget-user` or pass the existing secret to the action as `NUGET_API_KEY`.
+
+For a local run, use the .NET 10 SDK and run `dotnet run -c Release --file /path/to/TedToolkit/build.cs` from the target repository root. Set `BUILD_STAGE` to `build`, `test`, or `pack`, along with the variables for that stage.
 
 ## License
 
