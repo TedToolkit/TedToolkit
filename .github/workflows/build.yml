@@ -23,7 +23,7 @@ jobs:
           submodules: recursive
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0'
+          dotnet-version: '11.0.x'
       - name: Generate sources
         if: vars.BUILD_GENERATOR_PROJECT != ''
         uses: $/.github/actions/run-build
@@ -44,7 +44,7 @@ jobs:
           submodules: recursive
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0'
+          dotnet-version: '11.0.x'
       - name: Generate sources
         if: vars.BUILD_GENERATOR_PROJECT != ''
         uses: $/.github/actions/run-build
@@ -76,7 +76,7 @@ jobs:
           submodules: recursive
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0'
+          dotnet-version: '11.0.x'
       - name: Generate sources
         if: vars.BUILD_GENERATOR_PROJECT != ''
         uses: $/.github/actions/run-build

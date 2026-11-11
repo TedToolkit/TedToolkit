@@ -1,4 +1,4 @@
-#:property TargetFramework=net10.0
+#:property TargetFramework=net11.0
 #:property PublishAot=false
 #:property ManagePackageVersionsCentrally=false
 #:package TedToolkit.FileSystem@2026.10.16

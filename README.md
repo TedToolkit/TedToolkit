@@ -95,7 +95,7 @@ All libraries target a wide range of frameworks:
 
 | Frameworks | Versions |
 |---|---|
-| .NET | 6.0, 7.0, 8.0, 9.0, 10.0 |
+| .NET | 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 |
 | .NET Framework | 4.7.2, 4.8 |
 | .NET Standard | 2.0, 2.1 |
 
