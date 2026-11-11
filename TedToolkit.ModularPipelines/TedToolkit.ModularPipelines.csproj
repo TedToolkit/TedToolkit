@@ -15,4 +15,9 @@
     <PackageReference Include="ModularPipelines.GitHub"/>
   </ItemGroup>
 
+
+  <ItemGroup>
+    <None Include="../.agents/skills/maintain-tedtoolkit-build-pipelines/**/*"
+          Pack="true" PackagePath="skills/maintain-tedtoolkit-build-pipelines/" />
+  </ItemGroup>
 </Project>
