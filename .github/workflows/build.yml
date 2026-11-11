@@ -4,37 +4,91 @@ on:
   workflow_call:
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
+
+env:
+  BUILD_GENERATOR_PROJECT: ${{ vars.BUILD_GENERATOR_PROJECT }}
+  BUILD_SOLUTION: ${{ vars.BUILD_SOLUTION || (github.repository == 'TedToolkit/TedToolkit' && 'TedToolkit.slnx') || '' }}
+  BUILD_TEST_PROJECTS: ${{ vars.BUILD_TEST_PROJECTS }}
+  BUILD_TEST_FRAMEWORK: ${{ vars.BUILD_TEST_FRAMEWORK }}
+  BUILD_PACK_PROJECTS: ${{ vars.BUILD_PACK_PROJECTS || (github.repository == 'TedToolkit/TedToolkit' && 'TedToolkit.slnx') || '' }}
+  BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
 
 jobs:
-  run-build-project:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0'
-
-      - name: Run Build Project
+      - name: Generate sources
+        if: vars.BUILD_GENERATOR_PROJECT != ''
+        uses: $/.github/actions/run-build
         env:
-          NuGet__ApiKey: ${{ secrets.NUGET__APIKEY }}
-          NuGet__Url: ${{ vars.NUGET__URL }}
-          NuGet__Source: ${{ vars.NUGET__SOURCE }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dotnet run --project Build/Build.csproj
+          BUILD_STAGE: generate
+      - name: Build solution
+        uses: $/.github/actions/run-build
+        env:
+          BUILD_STAGE: build
 
-      - name: Upload Build Artifacts
+  test:
+    needs: build
+    if: vars.BUILD_TEST_PROJECTS != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0'
+      - name: Generate sources
+        if: vars.BUILD_GENERATOR_PROJECT != ''
+        uses: $/.github/actions/run-build
+        env:
+          BUILD_STAGE: generate
+      - name: Run tests
+        uses: $/.github/actions/run-build
+        env:
+          BUILD_STAGE: test
+      - name: Upload test reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: build-output
-          path: output/
-          retention-days: 2
-          if-no-files-found: ignore
+          name: test-results
+          path: output/test/
+          if-no-files-found: warn
+
+  pack:
+    needs: [build, test]
+    if: >-
+      !cancelled() &&
+      needs.build.result == 'success' &&
+      (needs.test.result == 'success' || needs.test.result == 'skipped') &&
+      (vars.BUILD_PACK_PROJECTS != '' || github.repository == 'TedToolkit/TedToolkit')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0'
+      - name: Generate sources
+        if: vars.BUILD_GENERATOR_PROJECT != ''
+        uses: $/.github/actions/run-build
+        env:
+          BUILD_STAGE: generate
+      - name: Pack NuGet packages
+        uses: $/.github/actions/run-build
+        env:
+          BUILD_STAGE: pack
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: output/nuget/
+          if-no-files-found: error
