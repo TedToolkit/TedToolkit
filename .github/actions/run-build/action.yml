@@ -1,9 +1,14 @@
 name: Run the TedToolkit build
 description: Run the build script at the same revision as the calling workflow
+outputs:
+  value:
+    description: Release version produced by the version stage
+    value: ${{ steps.script.outputs.value }}
 runs:
   using: composite
   steps:
     - name: Run script
+      id: script
       shell: bash
       working-directory: ${{ github.workspace }}
       env:

@@ -1,7 +1,14 @@
 #:property TargetFramework=net10.0
 #:property PublishAot=false
+#:property ManagePackageVersionsCentrally=false
+#:package TedToolkit.FileSystem@2026.10.16
+#:package TedToolkit.CiContext.GitHubActions@2026.10.16
 
 using System.Diagnostics;
+using System.Globalization;
+
+using TedToolkit.FileSystem;
+using TedToolkit.GitHub;
 
 const string DisableBuildPacking = "-p:GeneratePackageOnBuild=false";
 var configuration = Environment.GetEnvironmentVariable("BUILD_CONFIGURATION") ?? "Release";
@@ -10,36 +17,38 @@ try
 {
     return ReadRequired("BUILD_STAGE") switch
     {
-        "build" => await RunDotNetAsync(["build", ReadFile("BUILD_SOLUTION"), "-c", configuration, DisableBuildPacking]),
+        "generate" => await RunDotNetAsync(["run", "--project", ReadFile("BUILD_GENERATOR_PROJECT").FullName, "-c", configuration, "--no-launch-profile", DisableBuildPacking]),
+        "build" => await RunDotNetAsync(["build", ReadFile("BUILD_SOLUTION").FullName, "-c", configuration, DisableBuildPacking]),
         "test" => await TestAsync(ReadProjects("BUILD_TEST_PROJECTS"), configuration),
         "pack" => await PackAsync(ReadProjects("BUILD_PACK_PROJECTS"), configuration),
         "publish" => await PublishAsync(ReadRequired("NUGET_SOURCE"), ReadRequired("NUGET_API_KEY")),
-        _ => throw new InvalidOperationException("BUILD_STAGE must be build, test, pack, or publish."),
+        "version" => await ResolveVersionAsync(),
+        "release" => await CreateReleaseAsync(),
+        _ => throw new InvalidOperationException("Unknown BUILD_STAGE."),
     };
 }
-catch (Exception error) when (error is IOException or InvalidOperationException)
+catch (Exception error) when (error is IOException or InvalidOperationException or System.ComponentModel.Win32Exception)
 {
     Console.Error.WriteLine(error.Message);
     return 1;
 }
 
-static async Task<int> TestAsync(string[] projects, string configuration)
+static async Task<int> TestAsync(FilePath[] projects, string configuration)
 {
-    var output = Directory.CreateDirectory("output/test").FullName;
+    var output = (DirectoryPath.CurrentDirectory / "output" / "test").Create();
     var failed = false;
     foreach (var (project, index) in projects.Select((path, index) => (path, index)))
     {
-        var report = $"{Path.GetFileNameWithoutExtension(project)}-{index + 1}.trx";
-        var reportPath = Path.Combine(output, report);
-        File.Delete(reportPath);
+        var report = output / $"{project.NameWithoutExtension}-{index + 1}".AsFileName("trx");
+        report.Delete();
 
         var exitCode = await RunDotNetAsync([
-            "run", "--project", project, "-c", configuration, "--no-launch-profile",
-            DisableBuildPacking, "--", "--report-trx", "--results-directory", output, "--report-trx-filename", report,
+            "run", "--project", project.FullName, "-c", configuration, "--no-launch-profile",
+            DisableBuildPacking, "--", "--report-trx", "--results-directory", output.FullName, "--report-trx-filename", report.Name,
         ]);
-        if (exitCode != 0 || !File.Exists(reportPath))
+        if (exitCode != 0 || !report.Exists)
         {
-            Console.Error.WriteLine($"Test project '{project}' failed or did not produce a TRX report (exit code {exitCode}).");
+            Console.Error.WriteLine($"Test project '{project.FullName}' failed or did not produce a TRX report (exit code {exitCode}).");
             failed = true;
         }
     }
@@ -47,10 +56,10 @@ static async Task<int> TestAsync(string[] projects, string configuration)
     return failed ? 1 : 0;
 }
 
-static async Task<int> PackAsync(string[] projects, string configuration)
+static async Task<int> PackAsync(FilePath[] projects, string configuration)
 {
-    var output = Directory.CreateDirectory("output/nuget").FullName;
-    if (Directory.EnumerateFileSystemEntries(output).Any())
+    var output = PackageDirectory().Create();
+    if (output.EnumerateFileSystemEntries().Any())
     {
         throw new InvalidOperationException("Clear output/nuget before packaging.");
     }
@@ -63,7 +72,7 @@ static async Task<int> PackAsync(string[] projects, string configuration)
     foreach (var project in projects)
     {
         var exitCode = await RunDotNetAsync([
-            "pack", project, "-c", configuration, "-o", output, DisableBuildPacking, .. versionArguments,
+            "pack", project.FullName, "-c", configuration, "-o", output.FullName, DisableBuildPacking, .. versionArguments,
         ]);
         if (exitCode != 0)
         {
@@ -80,7 +89,7 @@ static async Task<int> PublishAsync(string source, string apiKey)
     foreach (var package in ReadPackages())
     {
         var exitCode = await RunDotNetAsync([
-            "nuget", "push", package, "--source", source, "--api-key", apiKey, "--skip-duplicate",
+            "nuget", "push", package.FullName, "--source", source, "--api-key", apiKey, "--skip-duplicate",
         ]);
         if (exitCode != 0)
         {
@@ -91,11 +100,13 @@ static async Task<int> PublishAsync(string source, string apiKey)
     return 0;
 }
 
-static string[] ReadPackages()
+static DirectoryPath PackageDirectory() => DirectoryPath.CurrentDirectory / "output" / "nuget";
+
+static FilePath[] ReadPackages()
 {
-    const string output = "output/nuget";
-    var packages = Directory.Exists(output)
-        ? Directory.GetFiles(output, "*.nupkg")
+    var output = PackageDirectory();
+    var packages = output.Exists
+        ? output.EnumerateFiles("*.nupkg").ToArray()
         : [];
     return packages.Length > 0
         ? packages
@@ -110,31 +121,71 @@ static string ReadRequired(string variable)
         : value.Trim();
 }
 
-static string ReadFile(string variable) => RequireFile(ReadRequired(variable), variable);
+static FilePath ReadFile(string variable) => RequireFile(ReadRequired(variable), variable);
 
-static string[] ReadProjects(string variable) => ReadRequired(variable)
+static FilePath[] ReadProjects(string variable) => ReadRequired(variable)
     .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
     .Select(path => RequireFile(path, variable))
-    .Distinct(OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal)
+    .DistinctBy(file => file.FullName, OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal)
     .ToArray();
 
-static string RequireFile(string path, string variable)
+static FilePath RequireFile(string path, string variable)
 {
-    var fullPath = Path.GetFullPath(path);
-    return File.Exists(fullPath)
-        ? fullPath
-        : throw new FileNotFoundException($"The path '{path}' in {variable} does not exist.", fullPath);
+    var file = new FilePath(path).GetFullPath(DirectoryPath.CurrentDirectory);
+    return file.Exists
+        ? file
+        : throw new FileNotFoundException($"The path '{path}' in {variable} does not exist.", file.FullName);
 }
 
-static async Task<int> RunDotNetAsync(string[] arguments)
+static async Task<int> ResolveVersionAsync()
 {
-    var startInfo = new ProcessStartInfo(Environment.GetEnvironmentVariable("DOTNET_HOST_PATH") ?? "dotnet");
+    var repository = GitHubActions.Repository.NameWithOwner
+        ?? throw new InvalidOperationException("GitHub Actions repository information is required.");
+    var output = GitHubActions.WorkflowCommands.OutputFile
+        ?? throw new InvalidOperationException("GitHub Actions step output is required.");
+    using var process = StartProcess("gh", [
+        "api", $"repos/{repository}/releases?per_page=1", "--jq", ".[0].tag_name // \"\"",
+    ], captureOutput: true);
+    var latestTag = (await process.StandardOutput.ReadToEndAsync()).Trim();
+    await process.WaitForExitAsync();
+    if (process.ExitCode != 0)
+    {
+        return process.ExitCode;
+    }
+
+    var date = DateTime.UtcNow;
+    var revision = Version.TryParse(latestTag, out var latest)
+        && latest.Major == date.Year && latest.Minor == date.Month && latest.Build == date.Day
+        ? Math.Max(0, latest.Revision) + 1
+        : 0;
+    output.AppendAllText(FormattableString.Invariant($"value={date.Year}.{date.Month}.{date.Day}.{revision}\n"));
+    return 0;
+}
+
+static Task<int> CreateReleaseAsync()
+{
+    var sha = GitHubActions.Ref.Sha
+        ?? throw new InvalidOperationException("The GitHub Actions commit SHA is required.");
+    return RunProcessAsync("gh", ["release", "create", ReadRequired("RELEASE_VERSION"), "--target", sha, "--generate-notes"]);
+}
+
+static Task<int> RunDotNetAsync(string[] arguments) =>
+    RunProcessAsync(Environment.GetEnvironmentVariable("DOTNET_HOST_PATH") ?? "dotnet", arguments);
+
+static async Task<int> RunProcessAsync(string executable, string[] arguments)
+{
+    using var process = StartProcess(executable, arguments);
+    await process.WaitForExitAsync();
+    return process.ExitCode;
+}
+
+static Process StartProcess(string executable, string[] arguments, bool captureOutput = false)
+{
+    var startInfo = new ProcessStartInfo(executable) { RedirectStandardOutput = captureOutput };
     foreach (var argument in arguments)
     {
         startInfo.ArgumentList.Add(argument);
     }
 
-    using var process = Process.Start(startInfo) ?? throw new InvalidOperationException("Could not start dotnet.");
-    await process.WaitForExitAsync();
-    return process.ExitCode;
+    return Process.Start(startInfo) ?? throw new InvalidOperationException($"Could not start {executable}.");
 }

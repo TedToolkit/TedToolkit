@@ -2,8 +2,8 @@ name: Publish TedToolkit packages to NuGet.org
 description: Build, test, pack, and publish with a short-lived NuGet.org credential
 inputs:
   nuget-user:
-    description: NuGet.org account name that owns the trusted publishing policy
-    required: true
+    description: NuGet.org account for Trusted Publishing. API key callers supply NUGET_API_KEY in the environment.
+    required: false
 runs:
   using: composite
   steps:
@@ -16,6 +16,14 @@ runs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '10.0'
+
+    - name: Generate sources
+      if: vars.BUILD_GENERATOR_PROJECT != ''
+      uses: $/.github/actions/run-build
+      env:
+        BUILD_STAGE: generate
+        BUILD_GENERATOR_PROJECT: ${{ vars.BUILD_GENERATOR_PROJECT }}
+        BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
 
     - name: Build solution
       uses: $/.github/actions/run-build
@@ -43,22 +51,10 @@ runs:
     - name: Resolve release version
       if: github.ref == 'refs/heads/main' && github.repository != 'TedToolkit/TedToolkit'
       id: version
-      shell: bash
+      uses: $/.github/actions/run-build
       env:
+        BUILD_STAGE: version
         GH_TOKEN: ${{ github.token }}
-      run: |
-        day="$(date -u +%Y.%-m.%-d)"
-        latest="$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=1" --jq '.[0].tag_name // ""')"
-        revision=0
-        if [[ "$latest" == "$day" ]]; then
-          revision=1
-        elif [[ "$latest" == "$day."* ]]; then
-          previous="${latest#"$day."}"
-          if [[ "$previous" =~ ^[0-9]+$ ]]; then
-            revision=$((10#$previous + 1))
-          fi
-        fi
-        printf 'value=%s.%s\n' "$day" "$revision" >> "$GITHUB_OUTPUT"
 
     - name: Pack release packages
       if: github.ref == 'refs/heads/main'
@@ -78,7 +74,7 @@ runs:
         if-no-files-found: error
 
     - name: Sign in to NuGet.org
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/main' && inputs.nuget-user != ''
       id: nuget
       uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
       with:
@@ -89,13 +85,13 @@ runs:
       uses: $/.github/actions/run-build
       env:
         BUILD_STAGE: publish
-        NUGET_API_KEY: ${{ steps.nuget.outputs.NUGET_API_KEY }}
-        NUGET_SOURCE: https://api.nuget.org/v3/index.json
+        NUGET_API_KEY: ${{ steps.nuget.outputs.NUGET_API_KEY || env.NUGET_API_KEY }}
+        NUGET_SOURCE: ${{ env.NUGET_SOURCE || 'https://api.nuget.org/v3/index.json' }}
 
     - name: Create GitHub release
       if: github.ref == 'refs/heads/main' && steps.version.outputs.value != ''
-      shell: bash
+      uses: $/.github/actions/run-build
       env:
+        BUILD_STAGE: release
         GH_TOKEN: ${{ github.token }}
         RELEASE_VERSION: ${{ steps.version.outputs.value }}
-      run: gh release create "$RELEASE_VERSION" --target "$GITHUB_SHA" --generate-notes
