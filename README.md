@@ -103,7 +103,7 @@ All libraries target a wide range of frameworks:
 
 ## Shared build workflow
 
-The [TedToolkit Build SDK](TedToolkit.Build.Sdk/README.md) provides shared MSBuild imports for repositories that build locally and in CI.
+The [TedToolkit Build SDK](TedToolkit.Build.Sdk/README.md) provides the MSBuild configuration for local and CI builds. Its guide covers pinning an SDK version and serving new versions from GitHub tags.
 
 Call the reusable workflow from a downstream repository's GitHub Actions workflow. Pin `uses` to a TedToolkit revision that contains `build.cs`.
 
