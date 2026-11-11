@@ -23,14 +23,17 @@ runs:
       with:
         user: ${{ inputs.nuget-user }}
 
-    - name: Run Build Project
-      shell: bash
+    - name: Run Build
+      uses: $/.github/actions/run-build
       env:
+        BUILD_SOLUTION: ${{ vars.BUILD_SOLUTION || (github.repository == 'TedToolkit/TedToolkit' && 'TedToolkit.slnx') || '' }}
+        BUILD_TEST_PROJECTS: ${{ vars.BUILD_TEST_PROJECTS }}
+        DotNet__Configuration: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
+        BUILD_MANAGE_RELEASE_VERSION: ${{ github.repository != 'TedToolkit/TedToolkit' }}
         NuGet__ApiKey: ${{ steps.nuget.outputs.NUGET_API_KEY }}
         NuGet__Url: https://www.nuget.org
         NuGet__Source: https://api.nuget.org/v3/index.json
         GITHUB_TOKEN: ${{ github.token }}
-      run: dotnet run --project Build/Build.csproj
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4

@@ -101,6 +101,34 @@ All libraries target a wide range of frameworks:
 
 > **Note:** `TedToolkit.RoslynHelper` targets `netstandard2.0` only (Roslyn analyzer requirement). `TedToolkit.Hexa.Raii.*` does not target .NET Framework 4.x.
 
+## Shared build workflow
+
+Call the reusable workflow from a downstream repository's GitHub Actions workflow. Pin `uses` to a TedToolkit revision that contains `build.cs`.
+
+```yaml
+on: [push, workflow_dispatch]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    uses: TedToolkit/TedToolkit/.github/workflows/build.yml@<commit-sha>
+```
+
+Set the following GitHub Actions variables in the calling repository. Paths are relative to that repository's root.
+
+| Variable | Value |
+| --- | --- |
+| `BUILD_SOLUTION` | Solution to build, such as `TedToolkit.Results.slnx`. Required for downstream repositories using the script. |
+| `BUILD_TEST_PROJECTS` | Optional executable test project paths, one `.csproj` per line. |
+| `BUILD_CONFIGURATION` | Optional build and test configuration. Defaults to `Release`. |
+
+Once the variables are set, remove the downstream `Build/Build.csproj` and its solution entry. If the repository uses the shared `publish-nuget` action, update its reference to the same revision. Submodules used by project imports are still checked out. The workflow uploads `output/` as the `build-output` artifact.
+
+For a local run, use the .NET 10 SDK. Set `BUILD_SOLUTION` and optionally `BUILD_TEST_PROJECTS` in the environment, then run `dotnet run --file /path/to/TedToolkit/build.cs` from the root of the repository to build. For a custom configuration, set `DotNet__Configuration`.
+
 ## License
 
 All TedToolkit libraries are licensed under the [GNU Lesser General Public License v3.0 (LGPL-3.0)](COPYING.LESSER). You are free to use them in proprietary applications as long as the libraries themselves remain under the same license.

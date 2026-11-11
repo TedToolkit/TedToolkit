@@ -37,7 +37,7 @@ public sealed class TestModule(IOptions<DotNetPipelineOptions> dotnet, PipelineF
                     return null;
                 }
 
-                await context.DotNet().Run(
+                var result = await context.DotNet().Run(
                     new()
                     {
                         Project = p.FullName,
@@ -56,12 +56,17 @@ public sealed class TestModule(IOptions<DotNetPipelineOptions> dotnet, PipelineF
                     .MaxBy(file => file.CreationTime);
                 if (file is null)
                 {
-                    return null;
+                    throw new InvalidOperationException($"Test project '{p.Name}' did not produce a TRX report.");
                 }
 
                 var projectName = Path.GetFileNameWithoutExtension(p.Name);
                 var path = Path.Combine(resultFolder.Path, projectName + "_" + file.Name);
                 File.Copy(file.FullName, path);
+                if (result.ExitCode != 0)
+                {
+                    throw new InvalidOperationException($"Test project '{p.Name}' exited with code {result.ExitCode}.");
+                }
+
                 return new FileInfo(path);
             }))
             .ConfigureAwait(false);

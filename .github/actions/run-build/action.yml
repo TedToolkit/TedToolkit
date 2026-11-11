@@ -1,0 +1,17 @@
+name: Run the TedToolkit build
+description: Run the build script at the same revision as the calling workflow
+runs:
+  using: composite
+  steps:
+    - name: Run build
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      env:
+        BUILD_ACTION_PATH: ${{ github.action_path }}
+      run: |
+        if [[ -z "${BUILD_SOLUTION:-}" && -f Build/Build.csproj ]]; then
+          # Keep existing callers working until they configure BUILD_SOLUTION.
+          dotnet run --project Build/Build.csproj
+        else
+          dotnet run --file "$BUILD_ACTION_PATH/../../../build.cs"
+        fi

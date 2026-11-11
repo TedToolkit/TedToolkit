@@ -22,13 +22,16 @@ jobs:
         with:
           dotnet-version: '10.0'
 
-      - name: Run Build Project
+      - name: Run Build
+        uses: $/.github/actions/run-build
         env:
+          BUILD_SOLUTION: ${{ vars.BUILD_SOLUTION || (github.repository == 'TedToolkit/TedToolkit' && 'TedToolkit.slnx') || '' }}
+          BUILD_TEST_PROJECTS: ${{ vars.BUILD_TEST_PROJECTS }}
+          DotNet__Configuration: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
           NuGet__ApiKey: ${{ secrets.NUGET__APIKEY }}
           NuGet__Url: ${{ vars.NUGET__URL }}
           NuGet__Source: ${{ vars.NUGET__SOURCE }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dotnet run --project Build/Build.csproj
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
